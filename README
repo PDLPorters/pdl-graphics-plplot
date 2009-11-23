@@ -36,7 +36,7 @@ $pl->shadeplot ($z, $nsteps, BOX => [-1, 1, -1, 1], PALETTE => 'RAINBOW');
 $pl->colorkey ($z, 'v', VIEWPORT => [0.93, 0.96, 0.15, 0.85]);
 $pl->close;
 
-For more examples, see the test.pl file.
+For more examples, see the test suite in t/plplot.t.
 
 PREREQUISITES:
 

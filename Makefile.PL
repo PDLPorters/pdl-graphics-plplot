@@ -3,16 +3,19 @@
 use ExtUtils::MakeMaker;
 use Config;
 
-#eval {
-#  require PDL::Core::Dev;  # needed for stand-alone version of package.
-#                           # Need to comment out
-#                           # for package included in PDL distro.
-#
-#  PDL::Core::Dev->import;
-#};
-#my $pdl_installed = ($@) ? 0 : 1; # make always == 1 for install from PDL distro.
-my $pdl_installed = 1;
-#print "PDL ", ($pdl_installed ? '' : 'not'), " installed\n";
+# comment this block out for PDL internal version
+eval {
+  require PDL::Core::Dev;  # needed for stand-alone version of package.
+                           # Need to comment out
+                           # for package included in PDL distro.
+
+  PDL::Core::Dev->import;
+};
+my $pdl_installed = ($@) ? 0 : 1; # make always == 1 for install from PDL distro.
+print "PDL ", ($pdl_installed ? 'is' : 'is not'), " installed\n";
+# end comment this block out for PDL internal version
+
+#my $pdl_installed = 1; # uncomment for PDL-internal version
 
 if (!$pdl_installed) {
   # write dummy makefile if PDL not installed
@@ -25,7 +28,7 @@ if (!$pdl_installed) {
 
 use vars qw /$plplotvers/; # version of plplot used
 
-# 
+#
 ## Search for plplot library and include file
 #
 print "\nChecking PDL::Graphics::PLplot...\n";
@@ -39,22 +42,15 @@ my $libname = "libplplotd." . $Config{"so"};
 my $libname_static = "libplplotd.a";
 my $incname = "plplot.h";
 
-
 # require bad value support.  D. Hunt 10/20/2008
 unless ($PDL::Config{WITH_BADVAL}) {
   buildDummy ("Bad value support required!  (Turn on WITH_BADVAL in perldl.conf)");
   return if (caller); exit;
 }
 
-my $found_plplot =
-    (defined($PDL::Config{WITH_PLPLOT}) && (!$PDL::Config{WITH_PLPLOT}))
-    ? 0 : 1;
-print "found_plplot is $found_plplot\n";
-unless ($found_plplot) {
-  buildDummy ("User requested no PLplot interface!");
-  return if (caller); exit;
-}
 foreach my $libdir (
+		    $ENV{PLPLOT_LIBDIR},
+		    $PDL::Config{WHERE_PLPLOT_LIBS},
 		    '/usr/local/plplot/lib64',
                     '/usr/local/plplot/lib',
 		    '/usr/local/lib64',
@@ -66,7 +62,6 @@ foreach my $libdir (
 		    '/opt/lib',
 		    '/ops/tools/lib',
                     '/sw/lib/',    # default FINK installation
-		    $PDL::Config{WHERE_PLPLOT_LIBS},
 		                  # Add new library paths here!!
 		    ) {
 
@@ -89,6 +84,8 @@ unless (defined ($plplot_lib_path)) {
 }
 
 foreach my $incdir (
+		    $ENV{PLPLOT_INCDIR},
+		    $PDL::Config{WHERE_PLPLOT_INCLUDE},
                     '/usr/local/plplot/include',
                     '/usr/local/plplot/include/plplot',
 		    '/usr/local/include/plplot',
@@ -100,7 +97,6 @@ foreach my $incdir (
 		    '/ops/tools/include/plplot',
 		    '/ops/tools/include',
                     '/sw/include/plplot/',    # default FINK installation
-		    $PDL::Config{WHERE_PLPLOT_INCLUDE},
 		                  # Add new header paths here!!
 		    ) {
 
@@ -128,8 +124,9 @@ EOC
 
 unless ($size == 8) {
   print "          Sizeof(PLFLT) must be 8. PLplot must be compiled --with-double (IE ./configure --with-double)\n";
-  $found_plplot = 0;
-} 
+  buildDummy ("Cannot find good set of libraries for linking PLplot, try fiddling perldl.conf\n");
+  return if (caller); exit;
+}
 
 # Try linking with library.  New if blocks should be added if necessary
 my $libs;
@@ -213,6 +210,21 @@ if ($@) {
   close OPT;
 }  
 
+# Test if PLplot has the routine plseed, found only in plplot 5.9 svn and later
+eval { compileAndRun ("$plplot_include_path -L$plplot_lib_path -lplplotd",0,<<'EOC');
+#include <plplot.h>
+main () { c_plseed(0);}
+EOC
+};
+if ($@){
+    print "\tc_plseed function not found, plplot versionn 5.9 or earlier!\n";
+    open (OPT,">>OPTIONS!");
+    print OPT "NOPLSEED!\n";
+    close OPT;
+} else {
+    print "\tc_plseed function found, version 5.9 SVN or later!\n";
+}
+
 $PDL::Config{WITH_PLPLOT} = 1;
 
 #
@@ -220,12 +232,12 @@ $PDL::Config{WITH_PLPLOT} = 1;
 #
 @pack = (["plplot.pd",PLplot,PDL::Graphics::PLplot]);
 
-%hash = pdlpp_stdargs_int(@::pack);  # use this for module inside PDL source
-###%hash = pdlpp_stdargs(@::pack);          # use this for separate module          
+#%hash = pdlpp_stdargs_int(@::pack);  # use this for module inside PDL source
+%hash = pdlpp_stdargs(@::pack);          # use this for separate module          
 
 $hash{'PREREQ_PM'} = { PDL => 0 };
 $hash{'OPTIMIZE'}  = '-g'; # If you want to debug, uncomment this.
-$hash{'VERSION'}   = '0.38';
+$hash{'VERSION_FROM'}   = 'plplot.pd';
 $hash{'LIBS'}      = [$libs];
 # add this to allow one to use the /ops/tools/lib plplot libs even when
 # another plplot is installed in /usr/local/lib. D. Hunt 6/4/2004
@@ -234,8 +246,8 @@ $hash{'INC'}      .= " $plplot_include_path";
 $hash{'clean'}     = {'FILES'  =>
 			  'PLplot.pm PLplot.xs PLplot.o PLplot.c PLplot.bs *.xfig temp* OPTIONS! Makefile.old'};
 
-#my $postamble = pdlpp_postamble(@::pack); # use for external module
-my $postamble = pdlpp_postamble_int(@::pack); # use for install inside PDL distro
+my $postamble = pdlpp_postamble(@::pack); # use for external module
+#my $postamble = pdlpp_postamble_int(@::pack); # use for install inside PDL distro
 
 WriteMakefile(%hash);
 

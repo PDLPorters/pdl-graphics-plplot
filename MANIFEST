@@ -1,0 +1,7 @@
+t/plplot.t
+plplot.pd
+Changes
+README
+Makefile.PL
+MANIFEST
+META.yml                                 Module meta-data (added by MakeMaker)

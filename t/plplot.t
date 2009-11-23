@@ -8,18 +8,8 @@
 
 use PDL;
 use PDL::Config;
-use Test::More;
-
-BEGIN{
-  use PDL::Config;
-  if($PDL::Config{WITH_PLPLOT}) {
-    plan tests => 35;
-    use_ok( "PDL::Graphics::PLplot" );
-  }
-  else {
-    plan skip_all => "PDL::Graphics::PLplot not installed";
-  }
-}
+use PDL::Graphics::PLplot;
+use Test::More qw(no_plan);
 
 ######################### End of black magic.
 
@@ -33,16 +23,6 @@ my $dev = 'xfig';
 
 # redirect STDERR to purge silly 'opened *.xfig' messages
 
-require IO::File;
-local *SAVEERR;
-*SAVEERR = *SAVEERR;  # stupid fix to shut up -w (AKA pain-in-the-...-flag)
-open(SAVEERR, ">&STDERR");
-my $tmp = new_tmpfile IO::File || die "couldn't open tmpfile";
-my $pos = $tmp->getpos;
-local *IN;
-*IN = *$tmp;  # doesn't seem to work otherwise
-open(STDERR,">&IN") or warn "couldn't redirect stdder";
-
 my ($pl, $x, $y, $min, $max, $oldwin, $nbins);
 
 
@@ -54,37 +34,6 @@ my ($pl, $x, $y, $min, $max, $oldwin, $nbins);
 
 my $tmpdir  = $PDL::Config{TEMPDIR} || "/tmp";
 my $tmpfile = $tmpdir . "/foo$$.$dev";
-
-# comment this out for testing!!!
-#my $pid = 0; my $a = 'foo';
-
-if($pid = fork()) {
-	$a = waitpid($pid,0);
-} else {
-	sleep 1;
-	$pl = PDL::Graphics::PLplot->new(DEV=>$dev,FILE=>$tmpfile);
-	exit(0);	
-}
-
-ok( ($not_ok = $? & 0xff )==0 , "PLplot crash test"  );
-unlink $tmpfile;
-
-if($not_ok) {
-	printf SAVEERR <<"EOERR" ;
-
-Return value $not_ok; a is $a; pid is $pid
-
-************************************************************************
-* PLplot failed the crash test: it appears to crash its owner process. *
-* This is probably due to a misconfiguration of the PLplot libraries.  *
-* Next we\'ll try creating a test window from which will probably dump  *
-* some (hopefully helpful) error messages and then die.                *
-************************************************************************
-
-EOERR
-
-	open(STDERR,">&SAVEERR");
-}
 
 $pl = PDL::Graphics::PLplot->new (DEV => $dev,
 				  FILE => "test2.$dev",
@@ -245,7 +194,7 @@ ok (-s "test11.$dev" > 0, "Colored symbol plot with key, via low level interface
 
 ok (sum(pdl(0.1, 0.85, 0.1, 0.9) - pdl($dev_xmin, $dev_xmax, $dev_ymin, $dev_ymax)) == 0, 
     "plgvpd call works correctly");
-ok (abs(sum(pdl(-0.0001, 10.0001, -0.001, 100.001) - pdl($wld_xmin, $wld_xmax, $wld_ymin, $wld_ymax))) < 0.000001, 
+ok (sum(abs(pdl(0, 10, 0, 100) - pdl($wld_xmin, $wld_xmax, $wld_ymin, $wld_ymax))) < 0.01,
     "plgvpw call works correctly");
 
 # Test shade plotting (low level interface)
@@ -478,29 +427,21 @@ $pl->stripplots($xs, $ys, PLOTTYPE => 'LINE', TITLE => 'functions',
 $pl->close;
 ok (-s "test26.$dev" > 0, "Multi-color stripplots");
 
-# Test calling plParseOpts with no options
-if($pid = fork()) {
-	$a = waitpid($pid,0);
-} else {
-	sleep 1;
-	plParseOpts ([], PL_PARSE_FULL);
-	exit(0);	
+# test opening/closing of more than 100 streams (100 is the max number of plplot streams, close should
+# reuse plplot stream numbers).
+my $count = 0;
+for my $i (1 .. 120) {
+  my $pltfile = "test27.$dev";
+  my $win = PDL::Graphics::PLplot->new(DEV => $dev, FILE => $pltfile, PAGESIZE => [300, 300]);
+  $win->xyplot(pdl(0,1), pdl(0,1));
+  # print "Stream = ", plgstrm(), " Stream in object = ", $win->{STREAMNUMBER}, "\n";
+  $win->close();
+  if (-s $pltfile > 0) { $count++; unlink $pltfile }
 }
-ok( ($not_ok = $? & 0xff )==0 , "No segfault calling plParseOpts with no options"  );
+ok ($count == 120, "Opening/closing of > 100 streams");
 
 # comment this out for testing!!!
 unlink glob ("test*.$dev");
-
-# stop STDERR redirection and examine output
-
-open(STDERR, ">&SAVEERR");
-$tmp->setpos($pos);  # rewind
-my $txt = join '',<IN>;
-close IN; undef $tmp;
-
-print "\ncaptured STDERR: ('Opened ...' messages are harmless)\n$txt\n";
-$txt =~ s/Opened test\d*\.$dev\n//sg;
-warn $txt unless $txt =~ /\s*/;
 
 # Local Variables:
 # mode: cperl
