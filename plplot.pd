@@ -1910,6 +1910,9 @@ sub close {
 }
 EOD
 
+# Used throughout when generating documentation.
+my $doc;
+
 # Necessary includes for .xs file
 pp_addhdr(<<'EOH');
 #include <plplot.h>
@@ -1951,7 +1954,6 @@ create_low_level_constants (<<'EODEF');
 # Definitions used in plParseOpts
 
 PL_PARSE_PARTIAL
-PL_PARSE_FULL
 PL_PARSE_QUIET
 PL_PARSE_NODELETE
 PL_PARSE_SHOWALL
@@ -2178,6 +2180,9 @@ EOC
 
 }
 
+=head1 LOW-LEVEL INTERFACE
+=cut
+
 pp_addpm (<<'EOPM');
 
 =pod
@@ -2374,7 +2379,48 @@ void c_plscolbga(PLINT r, PLINT g, PLINT b, PLFLT a);
 void c_plscol0a(PLINT icol0, PLINT r, PLINT g, PLINT b, PLFLT a);
 EODEF
 }
+
 # C routine to draw lines with gaps.  This is useful for map continents and other things.
+=head2 plline
+=cut
+
+$doc = <<'EOD';
+=for ref
+
+Draws line segments along (x1,y1)->(x2,y2)->(x3,y3)->...
+
+=for bad
+
+If the nth value of either x or y are bad, then it will be skipped, breaking
+the line.  In this way, you can specify multiple line segments with a single
+pair of x and y piddles.
+
+The usage is straight-forward:
+
+=for usage
+
+ plline($x, $y);
+
+For example:
+
+=for example
+
+ # Draw a sine wave
+ $x = sequence(100)/10;
+ $y = sin($x);
+ 
+ # Draws the sine wave:
+ plline($x, $y);
+ 
+ # Set values above 3/4 to 'bad', effectively drawing a bunch of detached,
+ # capped waves
+ $y->setbadif($y > 3/4);
+ plline($x, $y);
+
+=cut
+
+EOD
+
 pp_def ('plline',
          Pars => 'x(n); y(n)',
          GenericTypes => [D],
@@ -2389,7 +2435,43 @@ pp_def ('plline',
                          c_pljoin ($x(n=>j), $y(n=>j), $x(n=>i), $y(n=>i));
                        }
                      }',
+         Doc => $doc,
         );
+
+=head2 plcolorpoints
+=cut
+
+$doc = <<'EOD';
+=for ref
+
+PDL-specific: Implements what amounts to a threaded version of plsym.
+
+=for bad
+
+Bad values for z are simply skipped; all other bad values are not processed.
+
+In the following usage, all of the piddles must have the same dimensions:
+
+=for usage
+
+ plcolorpoints($x, $y, $z, $symbol_index, $minz, $maxz)
+
+For example:
+
+=for example
+
+ # Generate a parabola some points
+ my $x = sequence(30) / 3;   # Regular sampling
+ my $y = $x**2;              # Parabolic y
+ my $z = 30 - $x**3;         # Cubic coloration
+ my $symbols = floor($x);    # Use different symbols for each 1/3 of the plot
+                             #  These should be integers.
+ 
+ plcolorpoints($x, $y, $z, $symbols, -5, 20);  # Thread over everything
+ plcolorpoints($x, $y, 1, 1, -1, 2);           # same color and symbol for all
+
+=cut
+EOD
 
 # C routine to draw points with a color scale
 pp_def ('plcolorpoints',
@@ -2425,8 +2507,9 @@ pp_def ('plcolorpoints',
                     if (ci > 1) ci = 1;
                     c_plcol1 (ci); /* set current color */
                     c_plsym (1, &$x(n=>i), &$y(n=>i), $sym()); /* plot it */
+         
                   }',
-
+         Doc => $doc,
        );
 
 
