@@ -24,7 +24,6 @@ $noalpha = 1 if (grep /NOALPHA!/, @opts);
 $v59_or_earlier = 0;
 $v59_or_earlier = 1 if (grep /NOPLSEED!/, @opts);
 
-# (Un)comment the next line for more useful syntax highlighing
 pp_addpm({At => Top}, <<'EOD');
 
 BEGIN { 
@@ -54,9 +53,9 @@ Also see the test file, F<t/plplot.pl> in this distribution for some working exa
 
 =head1 DESCRIPTION
 
-This is the PDL interface to the PLplot graphics library.  It is
-designed to be simple and light weight with a familiar 'perlish'
-Object Oriented interface.
+This is the PDL interface to the PLplot graphics library.  It provides
+a familiar 'perlish' Object Oriented interface as well as access to
+the low-level PLplot commands from the C-API.
 
 =head1 OPTIONS
 
@@ -441,7 +440,9 @@ or
   $pl->colorkey  ($z, 'v', VIEWPORT => [0.93, 0.96, 0.13, 0.85],
                        ZRANGE => [-90,-20]);
 
-=head1 FUNCTIONS
+=head1 METHODS
+
+These are the high-level, object oriented methods for PLplot.
 
 =head2 new
 
@@ -3847,6 +3848,9 @@ Too many colors used! (max 15)
 =head1 SEE ALSO
 
 perl(1), PDL(1), L<http://www.plplot.org/>
+
+The other common graphics packages include L<PDL::PGPLOT>
+and L<PDL::TriD>.
 
 =cut
 
