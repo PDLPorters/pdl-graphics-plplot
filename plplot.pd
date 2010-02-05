@@ -24,6 +24,7 @@ $noalpha = 1 if (grep /NOALPHA!/, @opts);
 $v59_or_earlier = 0;
 $v59_or_earlier = 1 if (grep /NOPLSEED!/, @opts);
 
+# (Un)comment the next line for more useful syntax highlighing
 pp_addpm({At => Top}, <<'EOD');
 
 BEGIN { 
@@ -3729,10 +3730,36 @@ pp_addpm (<<'EOPM');
 
 =pod
 
+=head1 WARNINGS AND ERRORS
+
+PLplot gives many errors and warnings.  Some of these are given by the
+PDL interface while others are internal PLplot messages.  Below are
+some of these messages, and what you need to do to address them:
+
+=over
+
+=item *
+Box must be a ref to a four element array
+
+When specifying a box, you must pass a reference to a
+four-element array, or use an anonymous four-element array.
+
+ # Gives trouble:
+ $pl->xyplot($x, $y, BOX => (0, 0, 100, 200) );
+ # What you meant to say was:
+ $pl->xyplot($x, $y, BOX => [0, 0, 100, 200] );
+
+=item *
+Too many colors used! (max 15)
+
+
+=back
+
 =head1 AUTHORS
 
   Doug Hunt <dhunt@ucar.edu>
   Rafael Laboissiere <rlaboiss@users.sourceforge.net>
+  David Mertens <mertens2@illinois.edu>
 
 =head1 SEE ALSO
 
