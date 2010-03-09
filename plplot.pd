@@ -283,6 +283,8 @@ L<pladv()|/pladv>).
 Specify which symbol to use when plotting C<< PLOTTYPE => 'POINTS' >>.
 A large variety of symbols are available, see:
 http://plplot.sourceforge.net/examples-data/demo07/x07.*.png, where * is 01 - 17.
+You are most likely to find good plotting symbols in the 800s:
+http://plplot.sourceforge.net/examples-data/demo07/x07.06.png
 
 =head3 SYMBOLSIZE
 
@@ -345,6 +347,8 @@ Takes a four element array ref specifying:
  ymin -- The coordinate of the bottom edge of the viewport. (0 to 1)
  ymax -- The coordinate of the top edge of the viewport. (0 to 1)
 
+You will need to use this to make color keys or insets.
+
 =for example
 
  # Make a small plotting window in the lower left of the page
@@ -353,6 +357,11 @@ Takes a four element array ref specifying:
  # Also useful in creating color keys:
  $pl->xyplot   ($x, $y, PALETTE => 'RAINBOW', PLOTTYPE => 'POINTS', COLORMAP => $z);
  $pl->colorkey ($z, 'v', VIEWPORT => [0.93, 0.96, 0.15, 0.85]);
+ 
+ # Plot an inset; first the primary data and then the inset. In this
+ # case, the inset contains a selection of the orignal data
+ $pl->xyplot ($x, $y);
+ $pl->xyplot (where($x, $y, $x < 1.2), VIEWPORT => [0.7, 0.9, 0.6, 0.8]);
 
 =head3 XBOX
 
