@@ -53,9 +53,9 @@ Also see the test file, F<t/plplot.pl> in this distribution for some working exa
 
 =head1 DESCRIPTION
 
-This is the PDL interface to the PLplot graphics library.  It is
-designed to be simple and light weight with a familiar 'perlish'
-Object Oriented interface.
+This is the PDL interface to the PLplot graphics library.  It provides
+a familiar 'perlish' Object Oriented interface as well as access to
+the low-level PLplot commands from the C-API.
 
 =head1 OPTIONS
 
@@ -449,7 +449,9 @@ or
   $pl->colorkey  ($z, 'v', VIEWPORT => [0.93, 0.96, 0.13, 0.85],
                        ZRANGE => [-90,-20]);
 
-=head1 FUNCTIONS
+=head1 METHODS
+
+These are the high-level, object oriented methods for PLplot.
 
 =head2 new
 
@@ -1962,6 +1964,7 @@ create_low_level_constants (<<'EODEF');
 # Definitions used in plParseOpts
 
 PL_PARSE_PARTIAL
+PL_PARSE_FULL
 PL_PARSE_QUIET
 PL_PARSE_NODELETE
 PL_PARSE_SHOWALL
@@ -3821,14 +3824,43 @@ pp_addpm (<<'EOPM');
 
 =pod
 
+=head1 WARNINGS AND ERRORS
+
+PLplot gives many errors and warnings.  Some of these are given by the
+PDL interface while others are internal PLplot messages.  Below are
+some of these messages, and what you need to do to address them:
+
+=over
+
+=item *
+Box must be a ref to a four element array
+
+When specifying a box, you must pass a reference to a
+four-element array, or use an anonymous four-element array.
+
+ # Gives trouble:
+ $pl->xyplot($x, $y, BOX => (0, 0, 100, 200) );
+ # What you meant to say was:
+ $pl->xyplot($x, $y, BOX => [0, 0, 100, 200] );
+
+=item *
+Too many colors used! (max 15)
+
+
+=back
+
 =head1 AUTHORS
 
   Doug Hunt <dhunt@ucar.edu>
   Rafael Laboissiere <rlaboiss@users.sourceforge.net>
+  David Mertens <mertens2@illinois.edu>
 
 =head1 SEE ALSO
 
 perl(1), PDL(1), L<http://www.plplot.org/>
+
+The other common graphics packages include L<PDL::PGPLOT>
+and L<PDL::TriD>.
 
 =cut
 
