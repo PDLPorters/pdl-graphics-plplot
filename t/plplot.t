@@ -427,11 +427,23 @@ $pl->stripplots($xs, $ys, PLOTTYPE => 'LINE', TITLE => 'functions',
 $pl->close;
 ok (-s "test26.$dev" > 0, "Multi-color stripplots");
 
+$pl = PDL::Graphics::PLplot->new(DEV => $dev, FILE => "test27.$dev");
+$x1 = sequence(20);
+$y1 = $x1**2 + 4;
+$y2 = -$x1**2 + 4;
+$pl->stripplots($x1, [$y1, $y2],
+                PLOTTYPE => 'LINE', TITLE => 'functions',
+                YLAB => ['x**2', '-x**2'],
+                         COLOR => ['GREEN', 'DEEPSKYBLUE'], XLAB => 'X label');
+$pl->close;
+ok (-s "test27.$dev" > 0, "Stripplots with only one x argument");
+
+
 # test opening/closing of more than 100 streams (100 is the max number of plplot streams, close should
 # reuse plplot stream numbers).
 my $count = 0;
 for my $i (1 .. 120) {
-  my $pltfile = "test27.$dev";
+  my $pltfile = "test28.$dev";
   my $win = PDL::Graphics::PLplot->new(DEV => $dev, FILE => $pltfile, PAGESIZE => [300, 300]);
   $win->xyplot(pdl(0,1), pdl(0,1));
   # print "Stream = ", plgstrm(), " Stream in object = ", $win->{STREAMNUMBER}, "\n";
