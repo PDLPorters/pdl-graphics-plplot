@@ -1541,10 +1541,10 @@ sub stripplots {
 
   # Ensure we're dealing with an array reference
   my $ys;
-  if (ref $yargs eq 'ARRAY') {
+  if (ref ($yargs) eq 'ARRAY') {
     $ys = $yargs;
   }
-  elsif (ref $yargs =~ /PDL/) {
+  elsif (ref ($yargs) =~ /PDL/) {
     $ys = [dog $yargs];
   }
   else {
@@ -1576,7 +1576,7 @@ sub stripplots {
   $self->setparm(%opts);
 
   my ($xmin, $xmax);
-  if (ref $xs =~ /PDL/) {
+  if (ref ($xs) =~ /PDL/) {
     ($xmin, $xmax) = $xs->minmax;
   }
   else {
@@ -1588,7 +1588,7 @@ sub stripplots {
     for (my $subpage=0;$subpage<$nplots;$subpage++) {
 
       my $y = $ys->[$subpage];
-      my $x = ref $xs =~ /PDL/ ? $xs : $xs->[$subpage];
+      my $x = ref ($xs) =~ /PDL/ ? $xs : $xs->[$subpage];
       my $mask = $y->isgood;
       $y = $y->where($mask);
       $x = $x->where($mask);
