@@ -51,6 +51,19 @@ For more information on PLplot, see
 
 Also see the test file, F<t/plplot.pl> in this distribution for some working examples.
 
+=head1 LONG NAMES
+
+If you are annoyed by the long constructor call, consider installing the
+L<aliased|aliased> CPAN package. Using C<aliased>, the above example
+becomes
+
+  use PDL;
+  use aliased 'PDL::Graphics::PLplot';
+
+  my $pl = PLplot->new (DEV => "png", FILE => "test.png");
+  my $x  = sequence(10);
+  # etc, as above
+
 =head1 DESCRIPTION
 
 This is the PDL interface to the PLplot graphics library.  It provides
