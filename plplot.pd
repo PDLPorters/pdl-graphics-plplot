@@ -2513,7 +2513,7 @@ pp_def ('plline',
                      int j;
                      for (i=1;i<$SIZE(n);i++) {
                        j = i-1;	/* PP does not like using i-1 in a PDL ref.  Use j instead. */
-                       if ($ISGOOD(x(n=>i)) && $ISGOOD(x(n=>j))) {
+                       if ($ISGOOD(x(n=>i)) && $ISGOOD(x(n=>j)) && $ISGOOD(y(n=>i)) && $ISGOOD(y(n=>j))) {
                          c_pljoin ($x(n=>j), $y(n=>j), $x(n=>i), $y(n=>i));
                        }
                      }',
