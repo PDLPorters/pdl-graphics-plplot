@@ -40,9 +40,9 @@ For more examples, see the test suite in t/plplot.t.
 
 PREREQUISITES:
 
-perl 5.6 or higher
+perl 5.8 or higher
 PDL 2.3 or more recent
-PLplot 5.1.0 (5.2.0 support is in the works...)
+PLplot 5.1.0 or later.  Last tested with version 5.9.7 SVN (4/29/2011).
 
 ------------------------------------------------------------------------
 Important:  plplot *must* be compiled --with-double so that all floating
