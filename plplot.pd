@@ -5595,6 +5595,57 @@ EOC
 pp_add_exported('', 'plsfci');
 
 pp_addpm (<<'EOPM');
+=head2 pl_cmd
+
+=for sig
+
+   pl_cmd($CMD, $data);
+
+=for ref
+
+   See the PLplot manual for reference.
+   Gives access to low level driver. $CMD is an integer. $data opaque data. 
+
+=cut
+EOPM
+
+pp_addxs (<<"EOC");
+void
+pl_cmd (cmd, data)
+  int cmd
+  void *data
+CODE:
+  pl_cmd(cmd, data);
+EOC
+pp_add_exported('pl_cmd');
+
+pp_addpm (<<'EOPM');
+=head2 pl_setCairoCtx
+
+=for sig
+
+   pl_setCairoCtx($cairo_context);
+
+=for ref
+
+   Used with cairo external drivers to set the cairo context.
+   $cairo_context should be a Cairo::Context object. 
+   Uses pl_cmd underneath, but extracts the real C struct pointer from the Cairo::Context.
+
+=cut
+EOPM
+
+pp_addxs (<<"EOC");
+void
+pl_setCairoCtx(SV *sv)
+CODE:
+  pl_cmd(PLESC_DEVINIT, (void *)(SvIV ((SV *) SvRV (sv))));
+EOC
+pp_add_exported('pl_setCairoCtx');
+
+
+
+pp_addpm (<<'EOPM');
 
 =pod
 
