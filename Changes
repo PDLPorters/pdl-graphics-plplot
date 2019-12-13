@@ -84,3 +84,61 @@ Revision history for Perl extension PDL::Graphics::PLPLOT
 
 0.52  11/03/2009 Fixes for 64 bit machines:  plFree2dGrid, plFreeGrid, plAllocGrid, plAlloc2dGrid, pltr0, pltr1, pltr2
                  Now compiler complains less.
+
+0.53  7/27/2010  Added UNFILLED_BARS option to allow the bargraph routine to plot bars that are not filled.
+
+0.54 12/15/2010  Unified PDL distro version of CPAN stand-alone PDL::Graphics::PLplot version 0.53.
+
+0.55 4/23/2011   Upgraded prior to plplot 5.9.8 release.  
+                 Added support for many functions: plgradient, plstring, plstring3, plarc, plstransform, 
+                                                   plslabelfunc, pllegend, plspal0, plspal1, plbtime, 
+                                                   plconfigtime, plctime, pltimefmt, plsesc
+                 Removed deprecated functions: plarrows, c_plhls, c_plrgb, c_plrgb1
+                 Fixed compiler warnings, did general clean-up.
+0.56 5/06/2011   Added test suite from plplot, plus comparison results from the C tests.
+                 Also added META_MERGE in Makefile.PL to try to get PAUSE/CPAN indexing working.
+
+0.57 8/30/2011   Cleaned up OPTIONS! processing from Makefile.PL to plplot.pd--now based on the approach
+                 Sisyphus.  Also merged in David Merten's 'NoPthread => 1' option to allow for
+                 use of PLplot in a pthreads environment.
+                 Also added the C test source code from plplot 5.9.8 to compile and run for the
+                 plplot_library_tests test case.  This may not work on all platforms!
+
+0.58 9/6/2011    Build several functions if pllegend not found:
+                 plbtime
+                 plconfigtime
+                 plctime
+                 pltimefmt
+                 plsesc
+
+0.59 9/8/2011    Merge in Sysiphus's Windows compile update for the plplot library tests.
+                 Add -lm for Fedora as well.
+
+0.60 9/8/2011    Add './' to compile step per Orion Poplawski.
+
+0.61 9/12/2011   Take away './' for Windows users per Sisyphus.
+
+0.63 6/1/2012    Add GRIDMAP option to shadeplot
+
+0.64 6/1/2012    Add GRIDMAP2 option to shadeplot, add test case for it.
+
+0.66 11/5/2013   Upgrade to work with plplot 5.9.10 release.
+
+0.68 11/5/2013   Fix bug in 'histogram'.  Add new improved histogram plotter 'genHist'.
+
+0.69 05/27/2014  Now call $self->_setwindow from the 'text' subroutine.  This allows
+                 SUBPAGE to be specified on a call to 'text'.
+
+0.70 6/6/2014    Merged in changes from the missing 0.65:  Added STACKED_BAR_COLORS option to bargraph.  Allows stacked bar graph.
+
+0.71 5/15/2015   Added patch from Petr Pisar to allow build with plplot 5.11.0.  Deferred call to plschr() until
+                 after call to plinit().  Response to CPAN bug: https://rt.cpan.org/Public/Bug/Display.html?id=104424
+                 
+
+
+
+
+
+
+
+
