@@ -89,9 +89,9 @@ Revision history for Perl extension PDL::Graphics::PLPLOT
 
 0.54 12/15/2010  Unified PDL distro version of CPAN stand-alone PDL::Graphics::PLplot version 0.53.
 
-0.55 4/23/2011   Upgraded prior to plplot 5.9.8 release.  
-                 Added support for many functions: plgradient, plstring, plstring3, plarc, plstransform, 
-                                                   plslabelfunc, pllegend, plspal0, plspal1, plbtime, 
+0.55 4/23/2011   Upgraded prior to plplot 5.9.8 release.
+                 Added support for many functions: plgradient, plstring, plstring3, plarc, plstransform,
+                                                   plslabelfunc, pllegend, plspal0, plspal1, plbtime,
                                                    plconfigtime, plctime, pltimefmt, plsesc
                  Removed deprecated functions: plarrows, c_plhls, c_plrgb, c_plrgb1
                  Fixed compiler warnings, did general clean-up.
@@ -133,12 +133,3 @@ Revision history for Perl extension PDL::Graphics::PLPLOT
 
 0.71 5/15/2015   Added patch from Petr Pisar to allow build with plplot 5.11.0.  Deferred call to plschr() until
                  after call to plinit().  Response to CPAN bug: https://rt.cpan.org/Public/Bug/Display.html?id=104424
-                 
-
-
-
-
-
-
-
-
