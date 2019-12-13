@@ -9,7 +9,7 @@ my $int_ptr_type = ($ptrsize == 4) ? 'I32' : 'long';
 $PDL::Graphics::PLplot::standard_order = 0;
 
 # Read in options determined by Makefile.PL and written to the OPTIONS! file
-my $plversion = do 'OPTIONS!';
+my $plversion = do './OPTIONS!';
 pp_addpm({At => Top}, <<'EOD');
 
 our $VERSION;
