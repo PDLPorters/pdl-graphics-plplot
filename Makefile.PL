@@ -211,6 +211,18 @@ $hash{'LDDLFLAGS'} = " -shared -L$plplot_lib_path -L/usr/local/lib ";
 $hash{'INC'}      .= " $plplot_include_path";
 $hash{'clean'}     = {'FILES'  =>
                         'PLplot.pm PLplot.xs PLplot.o PLplot.c PLplot.bs *svg.* *.xfig temp* OPTIONS! Makefile.old'};
+$hash{META_MERGE} = {
+  "meta-spec" => { version => 2 },
+  resources => {
+    bugtracker  => {web=>'https://github.com/PDLPorters/pdl-graphics-plplot/issues'},
+    repository  => {
+       url => 'git://github.com/PDLPorters/pdl-graphics-plplot.git',
+       type => 'git',
+       web => 'https://github.com/PDLPorters/pdl-graphics-plplot',
+    },
+  },
+ x_IRC => 'irc://irc.perl.org/#pdl',
+};
 
 my $postamble = pdlpp_postamble(@::pack); # use for external module
 #my $postamble = pdlpp_postamble_int(@::pack); # use for install inside PDL distro
