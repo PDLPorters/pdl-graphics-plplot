@@ -1,5 +1,3 @@
-# Makefile.PL for a package defined by PP code.
-
 use ExtUtils::MakeMaker;
 use Config;
 use File::Spec;
@@ -57,6 +55,7 @@ foreach ('plplot', 'plplotd') {
   print "Searching for ${libname} library.\n";
 
   foreach my $libdir (
+              split(' ', $Config{libpth}), # not perl-in-space friendly
               $ENV{PLPLOT_LIBDIR},
               $PDL::Config{WHERE_PLPLOT_LIBS},
               '/usr/local/plplot/lib64',
