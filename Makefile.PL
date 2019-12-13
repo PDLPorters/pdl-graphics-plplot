@@ -180,7 +180,8 @@ $plversion{'c_pllegend'}  = test_func_exists('c_pllegend', 'Plot legends',
                                                          0,   0,   0,   NULL,0.0, 0.0, 0.0, 0.0, NULL,NULL,
                                                          NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);');
 $plversion{'c_plwidth'}   = test_func_exists('c_plwidth',   '5.9.10 width function', 'c_plwidth (0. );');
-$plversion{'C_COMPILE'}   = "$Config{cc} $Config{ccflags} $plplot_include_path $libs";
+$plversion{'C_COMPILE'}   = "$Config{cc} $Config{ccflags} $plplot_include_path";
+$plversion{'C_COMPILE_SUFFIX'} = $libs;
 $plversion{'PLPLOT_LIB'}  = $plplot_lib_path;
 
 # Write these options to a file--used by plplot.pd during the 'make' step
