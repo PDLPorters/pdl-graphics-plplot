@@ -6,6 +6,7 @@ MANIFEST
 t/01-checkmanifest.t
 t/plplot_library_tests.t
 t/plplot.t
+t/not_covered/x00c.c
 t/x01.pl
 t/x02.pl
 t/x03.pl
@@ -19,6 +20,7 @@ t/x10.pl
 t/x11.pl
 t/x12.pl
 t/x13.pl
+t/not_covered/x14c.c
 t/x15.pl
 t/not_covered/x16.pl
 t/x17.pl
@@ -67,5 +69,7 @@ t/x28c.c
 t/x29c.c
 t/x30c.c
 t/x31c.c
+t/not_covered/x32c.c
 t/x33c.c
+t/not_covered/x34c.c
 t/plcdemos.h
