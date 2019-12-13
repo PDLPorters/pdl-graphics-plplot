@@ -1,10 +1,8 @@
-t/plplot.t
 plplot.pd
 Changes
 README
 Makefile.PL
 MANIFEST
-META.yml                                 Module meta-data (added by MakeMaker)
 t/plplot_library_tests.t
 t/plplot.t
 t/x01.pl
@@ -70,4 +68,3 @@ t/x30c.c
 t/x31c.c
 t/x33c.c
 t/plcdemos.h
-META.json                                Module JSON meta-data (added by MakeMaker)
