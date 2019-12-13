@@ -52,21 +52,21 @@ foreach my $plplot_test_script (@scripts) {
   my $devnull = File::Spec->devnull();
   my $dot_slash = $^O =~ /MSWin32/i ? '' : './';
   if ($num == 14) {
-    system "echo foo.svg | ${dot_slash}a.out -dev svg -o x${num}c.svg -fam > $devnull 2>&1";
+    system "echo foo.svg | ${dot_slash}a.out -dev svg -o $cwd/x${num}c.svg -fam > $devnull 2>&1";
   } else {
-    system "${dot_slash}a.out -dev svg -o x${num}c.svg -fam > $devnull 2>&1";
+    system "${dot_slash}a.out -dev svg -o $cwd/x${num}c.svg -fam > $devnull 2>&1";
   }
   ok ($? == 0, "C code $c_code ran successfully");
 
   # Run perl version
   my $perlrun = 'perl -Mblib';
   if ($num == 14) {
-    system "echo foo.svg | $perlrun $plplot_test_script -dev svg -o x${num}p.svg -fam > $devnull 2>&1";
+    system "echo foo.svg | $perlrun $plplot_test_script -dev svg -o $cwd/x${num}p.svg -fam > $devnull 2>&1";
   } else {
-    system "$perlrun $plplot_test_script -dev svg -o x${num}p.svg -fam > $devnull 2>&1";
+    system "$perlrun $plplot_test_script -dev svg -o $cwd/x${num}p.svg -fam > $devnull 2>&1";
   }
   ok ($? == 0, "Script $plplot_test_script ran successfully");
-  my @output = glob ("x${num}p.svg*");
+  my @output = glob ("$cwd/x${num}p.svg*");
   foreach my $outfile (@output) {
     (my $reffile = $outfile) =~ s/x(\d\d)p/x${1}c/;
     my $perldata = do { local( @ARGV, $/ ) = $outfile; <> } ; # slurp!
