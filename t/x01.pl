@@ -28,9 +28,17 @@ use PDL;
 use PDL::Graphics::PLplot;
 use Math::Trig qw [pi];
 use Time::HiRes qw [usleep];
-use POSIX qw [isprint];
 use Getopt::Long qw [:config pass_through];
 use Text::Wrap;
+
+sub isprint {
+  if ($] >= 5.024) {
+    join('', @_) =~ qr/ ^ [[:punct:]]+ $ /x;
+  } else {
+    require POSIX;
+    POSIX::isprint(@_);
+  }
+}
 
 $Text::Wrap::columns = 72;
 
