@@ -24,6 +24,8 @@
 
 # SYNC: x06c.c 1.16
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 

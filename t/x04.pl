@@ -25,6 +25,8 @@
 
 # SYNC: x04c.c 1.17
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 use Math::Trig qw [pi];

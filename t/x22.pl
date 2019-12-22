@@ -24,6 +24,8 @@
 
 # SYNC: x22c.c 1.8
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 use Math::Trig qw [pi];
@@ -95,14 +97,11 @@ sub constriction {
     my $y = ((sequence($ny)-int($ny/2)+0.5)*$dy)->dummy(0,$nx);
     my $cgrid2 = plAlloc2dGrid($x, $y);
 
-    my $u;
-    my $v;
-    
     my $Q = 2.0;
     my $b = $ymax/4.0*(3-cos(pi*$x/$xmax));
     my $dbdx = $ymax/4.0*sin(pi*$x/$xmax)*$y/$b;
-    $u = $Q*4*$ymax/$b;
-    $v = $dbdx*$u;
+    my $u = $Q*4*$ymax/$b;
+    my $v = $dbdx*$u;
     $u->where(abs($y)>=$b) .= 0;
     $v->where(abs($y)>=$b) .= 0;
 
@@ -116,7 +115,7 @@ sub constriction {
 
 
 sub f2mnmx {
-  $f = shift;
+  my $f = shift;
   my $fmin = min ($f);
   my $fmax = max ($f);
   return ($fmin, $fmax);
@@ -217,7 +216,7 @@ constriction();
 
 # Set arrow style using arrow2_x and arrow2_y then
 # plot using these filled arrows.
-my $fill = 1;
+$fill = 1;
 plsvect($arrow2_x, $arrow2_y, $fill);
 constriction();
 

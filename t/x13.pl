@@ -30,6 +30,8 @@
 # operations of PDL extensively, such that most of the "for" loops
 # disappeared. [R.L.]
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 use Math::Trig qw [pi];

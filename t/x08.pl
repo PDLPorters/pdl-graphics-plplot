@@ -24,6 +24,8 @@
 
 # SYNC: x08c.c 1.45
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 use Math::Trig qw [pi];
@@ -35,10 +37,10 @@ use constant YPTS => 46;    # Data points in y
 
 use constant LEVELS => 10;
 
-@alt = (60.0, 20.0);
-@az = (30.0, 60.0);
+my @alt = (60.0, 20.0);
+my @az = (30.0, 60.0);
 
-@title = (
+my @title = (
   "#frPLplot Example 8 - Alt=60, Az=30",
   "#frPLplot Example 8 - Alt=20, Az=60"
 );
@@ -76,14 +78,12 @@ my $LEVELS = 10;
 
 # Parse and process command line arguments
 
+my $sombrero;
 plParseOpts (\@ARGV, PL_PARSE_SKIP | PL_PARSE_NOPROGRAM);
 GetOptions ("sombrero" => \$sombrero);
 
 my $nlevel = LEVELS;
-my $rosen = 1;
-
-$rosen = 0
-  if $sombrero;
+my $rosen = !$sombrero;
 
 # Initialize plplot
 
@@ -114,7 +114,7 @@ for ($i = 0; $i < XPTS; $i++) {
       }
     }
     else {
-      $r = sqrt ($xx * $xx + $yy * $yy);
+      my $r = sqrt ($xx * $xx + $yy * $yy);
       $zz = exp (-$r * $r) * cos (2.0 * pi * $r);
     }
     $z->index ($i)->index ($j) .= $zz;

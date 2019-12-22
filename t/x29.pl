@@ -36,6 +36,8 @@
 # 
 #--------------------------------------------------------------------------
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 use Time::Local;
@@ -155,7 +157,7 @@ sub plot2 {
 
 # Return a 1D PDL consisting of the minimum of each pairwise
 # element of the two input 1D PDLs
-sub minover { return cat($_[0], $_[1])->xchg(0,1)->minimum }
+sub my_minover { return cat($_[0], $_[1])->xchg(0,1)->minimum }
 
 sub plot3 {
 
@@ -172,7 +174,7 @@ sub plot3 {
     
     my $i = sequence($npts);
     my $x = $xmin + $i*60.0*60.0*24.0;
-    my $y = 1.0 + sin( 2*PI*$i / 7 ) + exp( (minover($i,$npts-$i)) / 31.0);
+    my $y = 1.0 + sin( 2*PI*$i / 7 ) + exp( (my_minover($i,$npts-$i)) / 31.0);
 
     pladv(0);
 
@@ -216,7 +218,10 @@ sub plot4 {
     my $offset2 = -0.3641639;
     plconfigtime($scale, $offset1, $offset2, 0x0, 0, 0, 0, 0, 0, 0, 0);
 
+    my $npts;
     my ($xmin, $xmax);
+    my ($ymin, $ymax, $time_format, $if_TAI_time_format, $title_suffix);
+    my ($xtitle, $xlabel_step);
     for ( my $kind = 0; $kind < 7; $kind++ )
     {
         if ( $kind == 0 )
@@ -297,16 +302,16 @@ sub plot4 {
         }
 
         my (@x, @y);
-        for ( $i = 0; $i < $npts; $i++ )
+        for ( my $i = 0; $i < $npts; $i++ )
         {
 	  $x[$i] = $xmin + $i * ( $xmax - $xmin ) / ( $npts - 1 );
           plconfigtime( $scale, $offset1, $offset2, 0x0, 0, 0, 0, 0, 0, 0, 0 );
-          $tai = $x[$i];
-          ($tai_year, $tai_month, $tai_day, $tai_hour, $tai_min, $tai_sec) = plbtime($tai);
+          my $tai = $x[$i];
+          my ($tai_year, $tai_month, $tai_day, $tai_hour, $tai_min, $tai_sec) = plbtime($tai);
           plconfigtime( $scale, $offset1, $offset2, 0x2, 0, 0, 0, 0, 0, 0, 0 );
-          ($utc_year, $utc_month, $utc_day, $utc_hour, $utc_min, $utc_sec) = plbtime($tai);
+          my ($utc_year, $utc_month, $utc_day, $utc_hour, $utc_min, $utc_sec) = plbtime($tai);
           plconfigtime( $scale, $offset1, $offset2, 0x0, 0, 0, 0, 0, 0, 0, 0 );
-          $utc = plctime($utc_year, $utc_month, $utc_day, $utc_hour, $utc_min, $utc_sec);
+          my $utc = plctime($utc_year, $utc_month, $utc_day, $utc_hour, $utc_min, $utc_sec);
           $y[$i] = ( $tai - $utc ) * $scale * 86400;
         }
 
@@ -322,7 +327,7 @@ sub plot4 {
         pltimefmt( $time_format );
         plbox( $xlabel_step, 0, 0, 0, "bcnstd",  "bcnstv" );
         plcol0( 3 );
-        $title  = '@frPLplot Example 29 - TAI-UTC ';
+        my $title  = '@frPLplot Example 29 - TAI-UTC ';
         $title .= $title_suffix;
         pllab( $xtitle, "TAI-UTC (sec)", $title );
 

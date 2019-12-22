@@ -24,6 +24,8 @@
 
 # SYNC: x01c.c 1.39
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 use Math::Trig qw [pi];
@@ -42,10 +44,10 @@ sub isprint {
 
 $Text::Wrap::columns = 72;
 
-$xscale = 6.;
-$yscale = 1.;
-$xoff = 0.;
-$yoff = 0.;
+my $xscale = 6.;
+my $yscale = 1.;
+my $xoff = 0.;
+my $yoff = 0.;
 
 my $test_xor = 0;
 
@@ -67,6 +69,7 @@ sub main {
 
   my $locate_mode = 0;
   my $fontset = 1;
+  my ($f_name, $help);
 
   GetOptions ("locate" => \$locate_mode,
               "xor"    => \$test_xor,
@@ -128,7 +131,7 @@ EOT
   $yscale = 0.0014;
   $yoff = 0.0185;
 
-  $digmax = 5;
+  my $digmax = 5;
   plsyax ($digmax, 0);
 
   plot1 (1);
@@ -172,10 +175,10 @@ EOT
 
       pltext ();
 
-      printf ("subwin = $gin{subwindow}, wx = %f,  wy = %f, dx = %f,  "
+      printf "subwin = $gin{subwindow}, wx = %f,  wy = %f, dx = %f,  "
               . "dy = %f,  c = "
               . ($k < 0xFF and isprint (chr $k) ? "'%c'" : "0x%02x")
-              . "\n", $gin{wX}, $gin{wY}, $gin{dX}, $gin{dY}, $k);
+              . "\n", $gin{wX}, $gin{wY}, $gin{dX}, $gin{dY}, $k;
 
       plgra ();
     }
@@ -194,14 +197,14 @@ sub plot1 {
   my $x = $xoff + $xscale * (1 + sequence (60)) / 60.0;
   my $y = $yoff + $yscale * ($x ** 2);
 
-  $xmin = $x->index (0);
-  $xmax = $x->index (59);
-  $ymin = $y->index (0);
-  $ymax = $y->index (59);
+  my $xmin = $x->index (0);
+  my $xmax = $x->index (59);
+  my $ymin = $y->index (0);
+  my $ymax = $y->index (59);
 
   my $idx = sequence (6) * 10 + 3;
-  $xs = $x->index ($idx);
-  $ys = $y->index ($idx);
+  my $xs = $x->index ($idx);
+  my $ys = $y->index ($idx);
 
   # Set up the viewport and window using PLENV. The range in X is
   # 0.0 to 6.0, and the range in Y is 0.0 to 30.0. The axes are

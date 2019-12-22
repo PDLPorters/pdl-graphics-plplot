@@ -23,6 +23,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 use constant PI => 4*atan2(1,1);

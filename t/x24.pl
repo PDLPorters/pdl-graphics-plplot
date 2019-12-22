@@ -46,6 +46,8 @@
 
 # SYNC: x24c.c 1.6
 
+use strict;
+use warnings;
 use PDL;
 use PDL::Graphics::PLplot;
 
