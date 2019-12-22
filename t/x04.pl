@@ -97,7 +97,7 @@ sub plot1 {
     plbox (0, 0, 30, 3, "", "cmstv");
     plcol0 (3);
     plline ($freql, $phase);
-    plstring($freql, $phase, "*");
+    plstring($freql, $phase, "#(728)");
     plcol0 (3);
     plmtex (5, 0.5, 0.5, "r", "Phase shift (degrees)");
     $nlegend = 2;
@@ -113,7 +113,7 @@ sub plot1 {
   my @symbol_colors = (3, 3); # ???
   my @symbol_scales = (1, 1); # ???
   my @symbol_numbers = (4, 4);# ???
-  my @symbols        = ('*', '*'); # ???
+  my @symbols        = ('#(728)', '#(728)'); # ???
   
   plscol0a(15, 32, 32, 32, 0.70);
   my ($legend_width, $legend_height) = pllegend(
