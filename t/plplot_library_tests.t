@@ -33,6 +33,7 @@ if ($plversion->{'c_plwidth'}) {
 
 my $tmpdir = tempdir( CLEANUP => 1 );
 
+@scripts = ("t/x08.pl");
 foreach my $plplot_test_script (@scripts) {
   my ($num) = ($plplot_test_script =~ /x(\d\d)\.pl/);
   (my $c_code = $plplot_test_script) =~ s/\.pl/c\.c/;
@@ -48,6 +49,7 @@ foreach my $plplot_test_script (@scripts) {
   my $c_output = "$tmpdir/x${num}c.svg";
   $cmd_line = "$tmpdir/a.out -dev svg -o $c_output -fam";
   $cmd_line = "echo $tmpdir/foo.svg | " . $cmd_line if $num == 14;
+warn "$cmd_line\n";
   system $cmd_line;
   ok ($? == 0, "C code $c_code ran successfully");
 
@@ -56,6 +58,7 @@ foreach my $plplot_test_script (@scripts) {
   my $p_output = "$tmpdir/x${num}p.svg";
   $cmd_line = "$perlrun $plplot_test_script -dev svg -o $p_output -fam";
   $cmd_line = "echo $tmpdir/foo.svg | " . $cmd_line if $num == 14;
+warn "$cmd_line\n";
   system $cmd_line;
   ok ($? == 0, "Script $plplot_test_script ran successfully");
   my @output = glob ("$tmpdir/x${num}p.svg*");
