@@ -1,3 +1,13 @@
+0.72 2019/12/26
+- update metadata to point to GitHub repo
+- build improvements: search $Config{libpth}, deal with no-dot-in-INC
+- various test improvements
+- replace obsolete POSIX::isprint
+- add missing constants: PL_NOTSET, PL_COLORBAR_CAP_NONE
+- add PL funcs needed by 5.13.0 tests: plpath, plsurf3dl
+- as needed by 5.13.0 tests, make plstransform not ignore "data" param
+- update test C files to PLplot 5.13.0 tests, and .pl to match
+
 0.71 5/15/2015   Added patch from Petr Pisar to allow build with plplot 5.11.0.  Deferred call to plschr() until
                  after call to plinit().  Response to CPAN bug: https://rt.cpan.org/Public/Bug/Display.html?id=104424
 

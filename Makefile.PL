@@ -203,7 +203,7 @@ $PDL::Config{WITH_PLPLOT} = 1;
 # $hash{'PREREQ_PM'} = { PDL => 0 };
 $hash{'OPTIMIZE'}  = '-g'; # If you want to debug, uncomment this.
 $hash{'VERSION_FROM'}   = 'plplot.pd';
-$hash{'META_MERGE'}   = {provides => {PDL::Graphics::PLplot => {file => 'plplot.pd', version => 0.71}}};
+$hash{'META_MERGE'}   = {provides => {'PDL::Graphics::PLplot' => {file => 'plplot.pd', version => 0.72}}};
 
 $hash{'LIBS'}      = [$libs];
 # add this to allow one to use the /ops/tools/lib plplot libs even when
