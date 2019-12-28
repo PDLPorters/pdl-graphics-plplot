@@ -1,6 +1,3 @@
-#! /usr/bin/env perl
-#
-#
 # Demo x23 for the PLplot PDL binding
 #
 # Displays Greek letters and mathematically interesting Unicode ranges

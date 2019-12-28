@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Set/get tester.
 #
 # Window positioning demo.

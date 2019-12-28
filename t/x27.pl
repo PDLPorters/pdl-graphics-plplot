@@ -1,7 +1,3 @@
-#! /usr/bin/env perl
-
-#  $Id: x27.pl 11730 2011-04-29 22:16:08Z huntd $
-#
 #  Copyright (C) 2008 Doug Hunt
 
 #  Drawing "spirograph" curves - epitrochoids, cycolids, roulettes

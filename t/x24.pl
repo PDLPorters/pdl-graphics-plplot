@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x24 for the PLplot PDL binding
 #
 # Unicode Pace Flag

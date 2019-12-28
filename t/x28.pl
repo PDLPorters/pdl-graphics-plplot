@@ -1,6 +1,3 @@
-#! /usr/bin/env perl
-
-#
 #	plmtex3, plptex3 demo.
 #
 #   Copyright (C) 2007 Alan W. Irwin

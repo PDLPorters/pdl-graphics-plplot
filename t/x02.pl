@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x02 for the PLplot PDL binding
 #
 # Multiple window and color map 0 demo

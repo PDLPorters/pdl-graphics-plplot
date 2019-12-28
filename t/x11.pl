@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x11 for the PLplot PDL binding
 #
 # Mesh plot demo

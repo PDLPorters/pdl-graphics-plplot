@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # $Id: x26.pl 11730 2011-04-29 22:16:08Z huntd $
 #
 # -*- coding: utf-8; -*-

@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x25 for the PLplot PDL binding
 #
 # Copyright (C) 2006 Andrew Ross

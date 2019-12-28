@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x04 for the PLplot PDL binding
 #
 # Log plot demo

@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x15 for the PLplot PDL binding
 #
 # Shade plot demo

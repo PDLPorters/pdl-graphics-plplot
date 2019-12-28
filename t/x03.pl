@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x03 for the PLplot PDL binding
 #
 # Polar plot demo

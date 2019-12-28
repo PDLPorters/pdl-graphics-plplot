@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-
 #  Alpha color values demonstration.
 #
 #  Copyright (C) 2008 Hazen Babcock

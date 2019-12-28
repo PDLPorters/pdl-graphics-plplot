@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x17 for the PLplot PDL binding
 #
 # Plots a simple stripchart with four pens

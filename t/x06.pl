@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x06 for the PLplot PDL binding
 #
 # Font demo

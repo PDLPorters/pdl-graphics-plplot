@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x05 for the PLplot PDL binding
 #
 # Histogram demo

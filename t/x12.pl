@@ -1,5 +1,3 @@
-#! /usr/bin/env perl
-#
 # Demo x12 for the PLplot PDL binding
 #
 # Bar chart demo

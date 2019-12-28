@@ -1,4 +1,3 @@
-#! /usr/bin/env perl
 # -*- coding: utf-8; -*-
 #
 # $Id: x33.pl 11731 2011-04-30 02:53:48Z airwin $
