@@ -52,7 +52,7 @@ foreach my $plplot_test_script (@scripts) {
   ok ($? == 0, "C code $c_code ran successfully");
 
   # Run perl version
-  my $perlrun = 'perl -Mblib';
+  my $perlrun = qq{"$^X" -Mblib};
   my $p_output = "$tmpdir/x${num}p.svg";
   $cmd_line = "$perlrun $plplot_test_script -dev svg -o $p_output -fam";
   $cmd_line = "echo $tmpdir/foo.svg | " . $cmd_line if $num == 14;

@@ -1,3 +1,5 @@
+- use $^X not "perl" - thanks @eserte
+
 0.72 2019/12/26
 - update metadata to point to GitHub repo
 - build improvements: search $Config{libpth}, deal with no-dot-in-INC
