@@ -21,15 +21,9 @@ if (!$pdl_installed) {
   # write dummy makefile if PDL not installed
   WriteMakefile(
 		'NAME'         => 'PDL::Graphics::PLplot',
-		'PREREQ_PM'    => { PDL => 0 },
+		'PREREQ_PM'    => { PDL => '2.035' }, # badval always on
 		);
   exit;
-}
-
-# require bad value support.  D. Hunt 10/20/2008
-unless ($PDL::Config{WITH_BADVAL}) {
-  buildDummy ("Bad value support required!  (Turn on WITH_BADVAL in perldl.conf)");
-  return if (caller); exit;
 }
 
 #
