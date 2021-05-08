@@ -1761,13 +1761,13 @@ sub stripplots {
     $ys = [dog $yargs];
   }
   else {
-    barf("stripplots requires that its second argument be either a 2D piddle or\na reference to a list of 1D piddles, but you provided neither.");
+    barf("stripplots requires that its second argument be either a 2D ndarray or\na reference to a list of 1D ndarrays, but you provided neither.");
   }
 
 # This doesn't work because $xs can be an anonymous array, too
 #  # Let's be sure the user sent us what we expected:
 #  foreach (@$ys) {
-#    barf ("stripplots needs to have piddles for its y arguments!")
+#    barf ("stripplots needs to have ndarrays for its y arguments!")
 #      unless (ref =~ /PDL/);
 #    barf("stripplots requires that the x and y dimensions agree!")
 #      unless ($_->nelem == $xs->nelem);
@@ -2537,7 +2537,7 @@ site (L<http://www.plplot.org/>).
 
 There are three differences in the way the functions are called.  The first
 one is due to a limitation in the pp_def wrapper of PDL, which forces all
-the non-piddle arguments to be at the end of the arguments list.  It is
+the non-ndarray arguments to be at the end of the arguments list.  It is
 the case of strings (C<char *>) arguments in the C API.  This affects the
 following functions:
 
@@ -2566,7 +2566,7 @@ plplot_use_standard_argument_order(0);
 The second notable different between the C and the PDL APIs is that many of
 the PDL calls do not need arguments to specify the size of the the vectors
 and/or matrices being passed.  These size parameters are deduced from the
-size of the piddles, when possible and are just omitted from the C call
+size of the ndarrays, when possible and are just omitted from the C call
 when translating it to perl.
 
 The third difference has to do with output parameters.  In C these are
@@ -3442,7 +3442,7 @@ Draws line segments along (x1,y1)->(x2,y2)->(x3,y3)->...
 
 If the nth value of either x or y are bad, then it will be skipped, breaking
 the line.  In this way, you can specify multiple line segments with a single
-pair of x and y piddles.
+pair of x and y ndarrays.
 
 The usage is straight-forward:
 
@@ -3508,7 +3508,7 @@ PDL-specific: Implements what amounts to a threaded version of plsym.
 
 Bad values for z are simply skipped; all other bad values are not processed.
 
-In the following usage, all of the piddles must have the same dimensions:
+In the following usage, all of the ndarrays must have the same dimensions:
 
 =for usage
 
@@ -4104,7 +4104,7 @@ mapform_callback (PLINT n, PLFLT* x, PLFLT* y)
   ax = (SP - PL_stack_base) + 1;
 
   if (count != 2)
-    croak ("mapform: must return two piddles");
+    croak ("mapform: must return two ndarrays");
 
   tx = (PLFLT*) ((PDL->SvPDLV(ST(0)))->data);
   ty = (PLFLT*) ((PDL->SvPDLV(ST(1)))->data);
