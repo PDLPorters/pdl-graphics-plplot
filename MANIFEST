@@ -75,6 +75,3 @@ t/plcdemos.h
 t/not_covered/x14.pl
 t/not_covered/x29.pl
 t/not_covered/x29c.c
-META.yml                                 Module YAML meta-data (added by MakeMaker)
-META.json                                Module JSON meta-data (added by MakeMaker)
-GENERATED/PDL/Graphics/PLplot.pm         mod=PDL::Graphics::PLplot pd=plplot.pd (added by pdlpp_mkgen)
