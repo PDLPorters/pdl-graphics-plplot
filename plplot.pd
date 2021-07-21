@@ -4493,7 +4493,7 @@ pp_def ('plscmap1l',
 	   else if ($SIZE(nrev) == $SIZE(n))
    	     rev = $P(rev);
            else
-             croak ("plscmap1l: rev must have either lenght == 0 or have the same length of the other input arguments");
+             croak ("plscmap1l: rev must have either length == 0 or have the same length of the other input arguments");
 
 	   c_plscmap1l ($itype(), $SIZE(n), $P(isty), $P(coord1),
 	                       $P(coord2), $P(coord3), rev);'
