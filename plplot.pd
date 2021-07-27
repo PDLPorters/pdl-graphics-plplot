@@ -2541,17 +2541,17 @@ the non-ndarray arguments to be at the end of the arguments list.  It is
 the case of strings (C<char *>) arguments in the C API.  This affects the
 following functions:
 
-plaxes
-plbox
-plbox3
-plmtex
-plmtex3
-plstart
-plstripc
-plmap
-plmeridians
-plshades
-plshade1
+  plaxes
+  plbox
+  plbox3
+  plmtex
+  plmtex3
+  plstart
+  plstripc
+  plmap
+  plmeridians
+  plshades
+  plshade1
 
 This difference can be got around by a call to
 
@@ -5056,12 +5056,12 @@ pp_addpm (<<'EOPM');
 
 =for sig
 
-my ($legend_width, $legend_height) =
-    pllegend ($position, $opt, $x, $y, $plot_width, $bg_color, $nlegend,
-    \@opt_array,
-    $text_offset, $text_scale, $text_spacing, $test_justification,
-    \@text_colors, \@text, \@box_colors, \@box_patterns, \@box_scales, \@line_colors,
-    \@line_styles, \@line_widths, \@symbol_colors, \@symbol_scales, \@symbol_numbers, \@symbols);
+  my ($legend_width, $legend_height) =
+      pllegend ($position, $opt, $x, $y, $plot_width, $bg_color, $nlegend,
+      \@opt_array,
+      $text_offset, $text_scale, $text_spacing, $test_justification,
+      \@text_colors, \@text, \@box_colors, \@box_patterns, \@box_scales, \@line_colors,
+      \@line_styles, \@line_widths, \@symbol_colors, \@symbol_scales, \@symbol_numbers, \@symbols);
 
 =for ref
 
@@ -5295,7 +5295,7 @@ pp_addpm (<<'EOPM');
 
 =for ref
 
-  Calculate broken-down time from continuous time for current stream.
+Calculate broken-down time from continuous time for current stream.
 
 =cut
 EOPM
@@ -5371,7 +5371,7 @@ pp_addpm (<<'EOPM');
 
 =for ref
 
-  Calculate continuous time from broken-down time for current stream.
+Calculate continuous time from broken-down time for current stream.
 
 =cut
 EOPM
