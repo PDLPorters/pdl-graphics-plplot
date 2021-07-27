@@ -13,8 +13,6 @@ t/not_covered/x19.pl
 t/not_covered/x19c.c
 t/not_covered/x20.pl
 t/not_covered/x20c.c
-t/not_covered/x29.pl
-t/not_covered/x29c.c
 t/not_covered/x32c.c
 t/not_covered/x34c.c
 t/plcdemos.h
@@ -68,6 +66,8 @@ t/x27.pl
 t/x27c.c
 t/x28.pl
 t/x28c.c
+t/x29.pl
+t/x29c.c
 t/x30.pl
 t/x30c.c
 t/x31.pl
