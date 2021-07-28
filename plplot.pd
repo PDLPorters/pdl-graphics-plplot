@@ -2492,28 +2492,29 @@ EODEF
 # with a mixture of PDL and non-PDL arguments, since pp_def requires
 # all non-PDL (OtherPars) arguments to go at the end of the argument list
 pp_addpm (<<'EOPM');
-sub reorder {
+
+my %REORDER = (
+ plaxes       => [0,1,6,2,3,7,4,5],
+ plbox        => [4,0,1,5,2,3], # 4th arg -> 0th arg, 0th arg -> 1st arg, etc
+ plbox3       => [6,7,0,1,8,9,2,3,10,11,4,5],
+ plmtex       => [3,0,1,2,4],
+ plmtex3      => [3,0,1,2,4],
+ plstart      => [2,0,1],
+ plstripc     => [13,14,0,1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18],
+ plmap        => [4,5,0,1,2,3],
+ plmeridians  => [6,0,1,2,3,4,5],
+ plshades     => [0,10,1,2,3,4,5,6,7,8,9,11,12],
+ plshade1     => [0,15,1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17],
+);
+
+sub _reorder {
   my $name = shift;
-  my %reorder = (
-                 plaxes       => [0,1,6,2,3,7,4,5],
-		 plbox        => [4,0,1,5,2,3], # 4th arg -> 0th arg, 0th arg -> 1st arg, etc
-                 plbox3       => [6,7,0,1,8,9,2,3,10,11,4,5],
-                 plmtex       => [3,0,1,2,4],
-                 plmtex3      => [3,0,1,2,4],
-                 plstart      => [2,0,1],
-                 plstripc     => [13,14,0,1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18],
-                 plmap        => [4,5,0,1,2,3],
-                 plmeridians  => [6,0,1,2,3,4,5],
-                 plshades     => [0,10,1,2,3,4,5,6,7,8,9,11,12],
-                 plshade1     => [0,15,1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17],
-		);
-  my $ordering = $reorder{$name};
+  my $ordering = $REORDER{$name};
   die "Cannot find argument reordering for $name" if (!defined($ordering));
   my @out;
-  for (my $i=0;$i<@_;$i++) {
-    $out[$$ordering[$i]] = $_[$i];
-  }
-  return @out;
+  my @indices = 0..$#_;
+  @out[@$ordering[@indices]] = @_[@indices];
+  @out;
 }
 
 # Routine for users to set normal plplot argument order
@@ -2606,7 +2607,7 @@ pp_def ('pladv',
 	Code => 'c_pladv($page());'
        );
 
-sub plaxes { plaxes_pp ($standard_order ? reorder ('plaxes', @_) : @_) } pp_add_exported('plaxes');
+sub plaxes { plaxes_pp ($standard_order ? _reorder ('plaxes', @_) : @_) } pp_add_exported('plaxes');
 pp_def ('plaxes_pp',
         NoPthread => 1,
 	GenericTypes => [D],
@@ -2632,7 +2633,7 @@ CODE:
 EOC
 pp_add_exported('plbop');
 
-pp_addpm ('sub plbox { plbox_pp ($standard_order ? reorder ("plbox", @_) : @_) }'); pp_add_exported('plbox');
+pp_addpm ('sub plbox { plbox_pp ($standard_order ? _reorder ("plbox", @_) : @_) }'); pp_add_exported('plbox');
 pp_def ('plbox_pp',
         NoPthread => 1,
 	GenericTypes => [D],
@@ -2641,7 +2642,7 @@ pp_def ('plbox_pp',
 	Code => 'c_plbox($COMP(xopt),$xtick(),$nxsub(),$COMP(yopt),$ytick(),$nysub());'
        );
 
-pp_addpm ('sub plbox3 { plbox3_pp ($standard_order ? reorder ("plbox3", @_) : @_) }'); pp_add_exported('plbox3');
+pp_addpm ('sub plbox3 { plbox3_pp ($standard_order ? _reorder ("plbox3", @_) : @_) }'); pp_add_exported('plbox3');
 pp_def ('plbox3_pp',
         NoPthread => 1,
 	GenericTypes => [D],
@@ -2966,7 +2967,7 @@ pp_def ('pllsty',
 	Code => 'c_pllsty($lin());'
        );
 
-pp_addpm ('sub plmtex { plmtex_pp ($standard_order ? reorder ("plmtex", @_) : @_) }'); pp_add_exported('plmtex');
+pp_addpm ('sub plmtex { plmtex_pp ($standard_order ? _reorder ("plmtex", @_) : @_) }'); pp_add_exported('plmtex');
 pp_def ('plmtex_pp',
         NoPthread => 1,
 	GenericTypes => [D],
@@ -2975,7 +2976,7 @@ pp_def ('plmtex_pp',
 	Code => 'c_plmtex($COMP(side),$disp(),$pos(),$just(),$COMP(text));'
        );
 
-pp_addpm ('sub plmtex3 { plmtex3_pp ($standard_order ? reorder ("plmtex3", @_) : @_) }'); pp_add_exported('plmtex3');
+pp_addpm ('sub plmtex3 { plmtex3_pp ($standard_order ? _reorder ("plmtex3", @_) : @_) }'); pp_add_exported('plmtex3');
 pp_def ('plmtex3_pp',
         NoPthread => 1,
 	GenericTypes => [D],
@@ -3245,7 +3246,7 @@ pp_def ('plstar',
 	Code => 'c_plstar($nx(),$ny());'
        );
 
-pp_addpm ('sub plstart { plstart_pp ($standard_order ? reorder ("plstart", @_) : @_) }'); pp_add_exported('plstart');
+pp_addpm ('sub plstart { plstart_pp ($standard_order ? _reorder ("plstart", @_) : @_) }'); pp_add_exported('plstart');
 pp_def ('plstart_pp',
         NoPthread => 1,
 	GenericTypes => [D],
@@ -4214,7 +4215,7 @@ EOPM
 
 # plot continental outline in world coordinates
 
-pp_addpm ('sub plmap { plmap_pp ($standard_order ? reorder ("plmap", @_) : @_) }'); pp_add_exported('plmap');
+pp_addpm ('sub plmap { plmap_pp ($standard_order ? _reorder ("plmap", @_) : @_) }'); pp_add_exported('plmap');
 pp_def ('plmap_pp',
         NoPthread => 1,
         Pars => 'minlong(); maxlong(); minlat(); maxlat();', # 0-3
@@ -4250,7 +4251,7 @@ pp_def ('plstring3',
        ) if ($plversion->{'c_pllegend'});
 
 # Plot the latitudes and longitudes on the background
-pp_addpm ('sub plmeridians { plmeridians_pp ($standard_order ? reorder ("plmeridians", @_) : @_) }'); pp_add_exported('plmeridians');
+pp_addpm ('sub plmeridians { plmeridians_pp ($standard_order ? _reorder ("plmeridians", @_) : @_) }'); pp_add_exported('plmeridians');
 pp_def ('plmeridians_pp',
         NoPthread => 1,
         Pars => 'dlong(); dlat(); minlong(); maxlong(); minlat(); maxlat();', # 0-5
@@ -4271,7 +4272,7 @@ pp_def ('plmeridians_pp',
 
 pp_addpm(<<'EOD'
   sub plshades {
-    plshades_pp ($standard_order ? reorder ("plshades", @_) : @_)
+    plshades_pp ($standard_order ? _reorder ("plshades", @_) : @_)
   }
 EOD
 );
@@ -4476,7 +4477,7 @@ pp_def ('plscmap1l',
 
 # Shade individual region on the basis of value
 
-pp_addpm ('sub plshade1 { plshade1_pp ($standard_order ? reorder ("plshade1", @_) : @_) }'); pp_add_exported('plshade1');
+pp_addpm ('sub plshade1 { plshade1_pp ($standard_order ? _reorder ("plshade1", @_) : @_) }'); pp_add_exported('plshade1');
 pp_def ('plshade1_pp',
         NoPthread => 1,
          GenericTypes => [D],
@@ -4824,7 +4825,7 @@ pp_add_exported ('plgver');
 
 #----------------------------------------------------------------------------
 
-pp_addpm ('sub plstripc { plstripc_pp ($standard_order ? reorder ("plstripc", @_) : @_) }'); pp_add_exported('plstripc');
+pp_addpm ('sub plstripc { plstripc_pp ($standard_order ? _reorder ("plstripc", @_) : @_) }'); pp_add_exported('plstripc');
 pp_def ('plstripc_pp',
         NoPthread => 1,
          GenericTypes => [D],
