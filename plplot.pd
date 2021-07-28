@@ -12,6 +12,8 @@ $PDL::Graphics::PLplot::standard_order = 0;
 my $plversion = do './OPTIONS!';
 pp_addpm({At => Top}, <<'EOD');
 
+use Carp qw(confess);
+
 our $VERSION;
 BEGIN {
 $VERSION = '0.74'
@@ -2487,12 +2489,17 @@ PL_POSITION_VIEWPORT
 
 EODEF
 
-# This subroutine is used to reorder PP_DEF arguments into the
+# This code is used to reorder PP_DEF arguments into the
 # standard plplot order.  This is necessary for some plplot functions
 # with a mixture of PDL and non-PDL arguments, since pp_def requires
 # all non-PDL (OtherPars) arguments to go at the end of the argument list
+sub _make_reorder {
+  my $name = shift;
+<<EOF;
+sub PDL::$name { _reorder('$name', 'PDL::_${name}_int', \$standard_order, \@_) }
+EOF
+}
 pp_addpm (<<'EOPM');
-
 my %REORDER = (
  plaxes       => [0,1,6,2,3,7,4,5],
  plbox        => [4,0,1,5,2,3], # 4th arg -> 0th arg, 0th arg -> 1st arg, etc
@@ -2500,21 +2507,42 @@ my %REORDER = (
  plmtex       => [3,0,1,2,4],
  plmtex3      => [3,0,1,2,4],
  plstart      => [2,0,1],
- plstripc     => [13,14,15,0..12,16..19],
+ plstripc     => [\13,14,15,0..12,16..19],
  plmap        => [4,5,0..3],
- plmeridians  => [6,0..5],
+ plmeridians  => [6,0..5], # 6th PDL arg gets sent as 0th C arg
  plshades     => [0,10,1..9,11,12],
  plshade1     => [0,15,1..14,16,17],
 );
-
 sub _reorder {
-  my $name = shift;
+  my ($name, $int_name, $need_reorder) = splice @_, 0, 3;
   my $ordering = $REORDER{$name};
-  die "Cannot find argument reordering for $name" if (!defined($ordering));
-  my @out;
-  my @indices = 0..$#_;
-  @out[@$ordering[@indices]] = @_[@indices];
-  @out;
+  die "Cannot find argument reordering for $name" if !defined $ordering;
+  my $missing = @_ != @$ordering;
+  no strict 'refs';
+  return $int_name->(@_) if !$missing and !$need_reorder;
+  # either need to insert output ndarray, or reorder, or both
+  my ($outarg_index) = map ref($_)?$$_:(), @$ordering;
+  confess "$name: wrong number of args but no output arg\n"
+    if $missing and !defined $outarg_index;
+  my @pdl_args = @_;
+  if (!$need_reorder) {
+    # args in PDL order; by definition need insert output
+    splice @pdl_args, $outarg_index, 0, my $out_ndarray = PDL->null;
+    $int_name->(@pdl_args);
+    return $out_ndarray;
+  }
+  # need to reorder, might need to insert output
+  my $out_ndarray;
+  if ($missing) {
+    $out_ndarray = PDL->null;
+    my $i = 0;
+    @pdl_args = map ref($_) ? $out_ndarray : $pdl_args[$i++], @$ordering;
+  }
+  my @pdl_indices = map ref($_)?$$_:$_, @$ordering;
+  my @input_indices = 0..$#$ordering;
+  @pdl_args[@pdl_indices] = @pdl_args[@input_indices];
+  $int_name->(@pdl_args);
+  $missing ? $out_ndarray : ();
 }
 
 # Routine for users to set normal plplot argument order
@@ -2607,12 +2635,12 @@ pp_def ('pladv',
 	Code => 'c_pladv($page());'
        );
 
-sub plaxes { plaxes_pp ($standard_order ? _reorder ('plaxes', @_) : @_) } pp_add_exported('plaxes');
-pp_def ('plaxes_pp',
+pp_def ('plaxes',
         NoPthread => 1,
 	GenericTypes => [D],
 	Pars => 'double xzero();double yzero();double xtick();int nxsub();double ytick();int nysub()',
 	OtherPars => 'char *xopt;char *yopt',
+	PMCode => _make_reorder('plaxes'),
 	Code => 'c_plaxes($xzero(),$yzero(),$COMP(xopt),$xtick(),$nxsub(),$COMP(yopt),$ytick(),$nysub());'
        );
 
@@ -2633,21 +2661,21 @@ CODE:
 EOC
 pp_add_exported('plbop');
 
-pp_addpm ('sub plbox { plbox_pp ($standard_order ? _reorder ("plbox", @_) : @_) }'); pp_add_exported('plbox');
-pp_def ('plbox_pp',
+pp_def ('plbox',
         NoPthread => 1,
 	GenericTypes => [D],
 	Pars => 'double xtick();int nxsub();double ytick();int nysub()',
 	OtherPars => 'char *xopt;char *yopt',
+	PMCode => _make_reorder('plbox'),
 	Code => 'c_plbox($COMP(xopt),$xtick(),$nxsub(),$COMP(yopt),$ytick(),$nysub());'
        );
 
-pp_addpm ('sub plbox3 { plbox3_pp ($standard_order ? _reorder ("plbox3", @_) : @_) }'); pp_add_exported('plbox3');
-pp_def ('plbox3_pp',
+pp_def ('plbox3',
         NoPthread => 1,
 	GenericTypes => [D],
 	Pars => 'double xtick();int nsubx();double ytick();int nsuby();double ztick();int nsubz()',
 	OtherPars => 'char *xopt;char *xlabel;char *yopt;char *ylabel;char *zopt;char *zlabel',
+	PMCode => _make_reorder('plbox3'),
 	Code => 'c_plbox3($COMP(xopt),$COMP(xlabel),$xtick(),$nsubx(),$COMP(yopt),$COMP(ylabel),$ytick(),$nsuby(),$COMP(zopt),$COMP(zlabel),$ztick(),$nsubz());'
        );
 
@@ -2967,21 +2995,21 @@ pp_def ('pllsty',
 	Code => 'c_pllsty($lin());'
        );
 
-pp_addpm ('sub plmtex { plmtex_pp ($standard_order ? _reorder ("plmtex", @_) : @_) }'); pp_add_exported('plmtex');
-pp_def ('plmtex_pp',
+pp_def ('plmtex',
         NoPthread => 1,
 	GenericTypes => [D],
 	Pars => 'double disp();double pos();double just()',
 	OtherPars => 'char *side;char *text',
+	PMCode => _make_reorder('plmtex'),
 	Code => 'c_plmtex($COMP(side),$disp(),$pos(),$just(),$COMP(text));'
        );
 
-pp_addpm ('sub plmtex3 { plmtex3_pp ($standard_order ? _reorder ("plmtex3", @_) : @_) }'); pp_add_exported('plmtex3');
-pp_def ('plmtex3_pp',
+pp_def ('plmtex3',
         NoPthread => 1,
 	GenericTypes => [D],
 	Pars => 'double disp();double pos();double just()',
 	OtherPars => 'char *side;char *text',
+	PMCode => _make_reorder('plmtex3'),
 	Code => 'c_plmtex3($COMP(side),$disp(),$pos(),$just(),$COMP(text));'
        );
 
@@ -3246,12 +3274,12 @@ pp_def ('plstar',
 	Code => 'c_plstar($nx(),$ny());'
        );
 
-pp_addpm ('sub plstart { plstart_pp ($standard_order ? _reorder ("plstart", @_) : @_) }'); pp_add_exported('plstart');
-pp_def ('plstart_pp',
+pp_def ('plstart',
         NoPthread => 1,
 	GenericTypes => [D],
 	Pars => 'int nx();int ny()',
 	OtherPars => 'char *devname',
+	PMCode => _make_reorder('plstart'),
 	Code => 'c_plstart($COMP(devname),$nx(),$ny());'
        );
 
@@ -4215,11 +4243,11 @@ EOPM
 
 # plot continental outline in world coordinates
 
-pp_addpm ('sub plmap { plmap_pp ($standard_order ? _reorder ("plmap", @_) : @_) }'); pp_add_exported('plmap');
-pp_def ('plmap_pp',
+pp_def ('plmap',
         NoPthread => 1,
         Pars => 'minlong(); maxlong(); minlat(); maxlat();', # 0-3
 	OtherPars => 'SV* mapform; char* type;', # 4,5
+	PMCode => _make_reorder('plmap'),
         GenericTypes => [D],
         Code => '
            int use_xform;
@@ -4251,11 +4279,11 @@ pp_def ('plstring3',
        ) if ($plversion->{'c_pllegend'});
 
 # Plot the latitudes and longitudes on the background
-pp_addpm ('sub plmeridians { plmeridians_pp ($standard_order ? _reorder ("plmeridians", @_) : @_) }'); pp_add_exported('plmeridians');
-pp_def ('plmeridians_pp',
+pp_def ('plmeridians',
         NoPthread => 1,
         Pars => 'dlong(); dlat(); minlong(); maxlong(); minlat(); maxlat();', # 0-5
 	OtherPars => 'SV* mapform;', # 6
+	PMCode => _make_reorder('plmeridians'),
         GenericTypes => [D],
         Code => '
            mapform_subroutine = $COMP(mapform);
@@ -4270,19 +4298,13 @@ pp_def ('plmeridians_pp',
 
 # Shade regions on the basis of value
 
-pp_addpm(<<'EOD'
-  sub plshades {
-    plshades_pp ($standard_order ? _reorder ("plshades", @_) : @_)
-  }
-EOD
-);
-pp_add_exported('plshades');
-pp_def ('plshades_pp',
+pp_def ('plshades',
         NoPthread => 1,
          Pars => 'z(x,y); xmin(); xmax(); ymin(); ymax();
                   clevel(l); int fill_width(); int cont_color();
                   int cont_width(); int rectangular()', # 0-9
          OtherPars => 'SV* defined; SV* pltr; SV* pltr_data;', # 10-12
+         PMCode => _make_reorder('plshades'),
          GenericTypes => [D],
          Code => '
            int nx    = $SIZE(x);
@@ -4477,8 +4499,7 @@ pp_def ('plscmap1l',
 
 # Shade individual region on the basis of value
 
-pp_addpm ('sub plshade1 { plshade1_pp ($standard_order ? _reorder ("plshade1", @_) : @_) }'); pp_add_exported('plshade1');
-pp_def ('plshade1_pp',
+pp_def ('plshade1',
         NoPthread => 1,
          GenericTypes => [D],
          Pars => 'a(nx,ny); left(); right(); bottom(); top(); shade_min();'
@@ -4486,6 +4507,7 @@ pp_def ('plshade1_pp',
                  . 'min_color(); min_width(); max_color(); max_width();'
                  . 'rectangular()', # 0-14
          OtherPars => 'SV* defined; SV* pltr; SV* pltr_data;',# 15-17
+         PMCode => _make_reorder('plshade1'),
          Doc => 'FIXME: documentation here!',
          Code => '
            int i, j, size_x, size_y;
@@ -4825,8 +4847,7 @@ pp_add_exported ('plgver');
 
 #----------------------------------------------------------------------------
 
-pp_addpm ('sub plstripc { plstripc_pp ($standard_order ? _reorder ("plstripc", @_) : @_) }'); pp_add_exported('plstripc');
-pp_def ('plstripc_pp',
+pp_def ('plstripc',
         NoPthread => 1,
          GenericTypes => [D],
          Pars => 'xmin(); xmax(); xjump(); ymin(); ymax();' # 0-4
@@ -4836,6 +4857,7 @@ pp_def ('plstripc_pp',
                  . 'int [o] id()', # 13 if given - else decr the rest
          OtherPars => 'char* xspec; char* yspec; SV* legline;' # 14-16
                       . 'char* labx; char* laby; char* labtop', # 17-19
+         PMCode => _make_reorder('plstripc'),
          Doc => 'FIXME: documentation here!',
          Code => '
            I32 i;
