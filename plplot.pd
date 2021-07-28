@@ -3653,17 +3653,12 @@ pp_def ('plunfbox1',
                   plline(4, x, y);',
         );
 
-
-#
-## Parse PLplot options given in @ARGV-like arrays
-#
-
 pp_def ('plParseOpts',
         NoPthread => 1,
         GenericTypes => [D],
         Pars => 'int [o] retval()',
         OtherPars => 'SV* argv; int mode',
-        Doc => 'FIXME: documentation here!',
+        Doc => 'Parse PLplot options given in @ARGV-like arrays',
         Code => '
                 SV* sv = $COMP (argv);
                 SV* dummy;
@@ -3864,14 +3859,11 @@ EOC
   pp_add_exported ($func);
 }
 
-
-# Allocates a PLcGrid object for use in pltr1
-
 pp_def ('plAllocGrid',
         NoPthread => 1,
         Pars => 'double xg(nx); double yg(ny); int [o] grid()',
         GenericTypes => [D],
-        Doc => 'FIXME: documentation here!',
+        Doc => 'Allocates a PLcGrid object for use in pltr1',
         Code => '
           PLcGrid *grid;
           int i, nx, ny;
@@ -3913,14 +3905,11 @@ EOC
 
 pp_add_exported (plFreeGrid);
 
-
-# Allocates a PLcGrid2 object for use in pltr2
-
 pp_def ('plAlloc2dGrid',
         NoPthread => 1,
         Pars => 'double xg(nx,ny); double yg(nx,ny); int [o] grid()',
         GenericTypes => [D],
-        Doc => 'FIXME: documentation here!',
+        Doc => 'Allocates a PLcGrid2 object for use in pltr2',
         Code => '
           PLcGrid2 *grid;
           int i, j, nx, ny;
@@ -4202,19 +4191,18 @@ void labelfunc_callback (PLINT axis, PLFLT value, char *label_text, PLINT length
 
 EOH
 
-# The init_pltr is used internally by the PLD::Graphics::PLplot
-# module to set the variables pltr{0,1,2}_iv to the "pointers"
-# of the Perl subroutines pltr{1,2,3}.  These variables are later used by
-# get_standard_pltrcb to provide the pointers to the C function pltr{0,1,2}.
-# This accelerates functions like plcont and plshades when those standard
-# transformation functions are used.
-
 pp_def ('init_pltr',
         NoPthread => 1,
          GenericTypes => [D],
          Pars => '',
          OtherPars => 'SV* p0; SV* p1; SV* p2;',
-         Doc => 'FIXME: documentation here!',
+         Doc => <<'EOF',
+Used internally to set the variables C<pltr{0,1,2}_iv> to the "pointers"
+of the Perl subroutines C<pltr{1,2,3}>.  These variables are later used by
+C<get_standard_pltrcb> to provide the pointers to the C function C<pltr{0,1,2}>.
+This accelerates functions like plcont and plshades when those standard
+transformation functions are used.
+EOF
          Code => '
            pltr0_iv = (IV) SvRV ($COMP(p0));
            pltr1_iv = (IV) SvRV ($COMP(p1));
@@ -4372,14 +4360,11 @@ pp_def ('plcont',
            plFree2dGrid (ff, size_x, size_y);'
         );
 
-
-# Surface mesh
-
 pp_def ('plmesh',
         NoPthread => 1,
          Pars => 'x(nx); y(ny); z(nx,ny); int opt()',
          GenericTypes => [D],
-         Doc => 'FIXME: documentation here!',
+         Doc => 'Surface mesh',
          Code => '
            int i, j, size_x, size_y;
            PLFLT** zz;
@@ -4398,13 +4383,11 @@ pp_def ('plmesh',
            plFree2dGrid (zz, size_x, size_y);'
         );
 
-# Magnitude colored plot surface mesh with contour
-
 pp_def ('plmeshc',
         NoPthread => 1,
          Pars => 'x(nx); y(ny); z(nx,ny); int opt(); clevel(nlevel)',
          GenericTypes => [D],
-         Doc => 'FIXME: documentation here!',
+         Doc => 'Magnitude colored plot surface mesh with contour',
          Code => '
            int i, j, size_x, size_y;
            PLFLT** zz;
@@ -4424,13 +4407,11 @@ pp_def ('plmeshc',
            plFree2dGrid (zz, size_x, size_y);'
         );
 
-# 3-d surface plot
-
 pp_def ('plot3d',
         NoPthread => 1,
          Pars => 'x(nx); y(ny); z(nx,ny); int opt(); int side()',
          GenericTypes => [D],
-         Doc => 'FIXME: documentation here!',
+         Doc => '3-d surface plot',
          Code => '
            int i, j, size_x, size_y;
            PLFLT** zz;
@@ -4449,14 +4430,11 @@ pp_def ('plot3d',
            plFree2dGrid (zz, size_x, size_y);'
         );
 
-
-# Plots a 3-d representation of the function z[x][y] with contour
-
 pp_def ('plot3dc',
         NoPthread => 1,
          Pars => 'x(nx); y(ny); z(nx,ny); int opt(); clevel(nlevel)',
          GenericTypes => [D],
-         Doc => 'FIXME: documentation here!',
+         Doc => 'Plots a 3-d representation of the function z[x][y] with contour',
          Code => '
            int i, j, size_x, size_y;
            PLFLT** zz;
@@ -4476,15 +4454,12 @@ pp_def ('plot3dc',
            plFree2dGrid (zz, size_x, size_y);'
         );
 
-
-# Set color map1 colors using a piece-wise linear relationship
-
 pp_def ('plscmap1l',
         NoPthread => 1,
          Pars => 'int itype(); isty(n); coord1(n); coord2(n); coord3(n);'
 	         . ' int rev(nrev)',
          GenericTypes => [D],
-         Doc => 'FIXME: documentation here!',
+         Doc => 'Set color map1 colors using a piece-wise linear relationship',
          Code => '
 	   PLINT* rev;
 
@@ -5449,14 +5424,12 @@ pp_add_exported ('plsesc');
 
 if ($plversion->{'plsvect'}) {
 
-# Vector field plots
-
   pp_def ('plvect',
           NoPthread => 1,
 	  GenericTypes => [D],
 	  Pars => 'u(nx,ny); v(nx,ny); scale();',
 	  OtherPars => 'SV* pltr; SV* pltr_data;',
-	  Doc => 'FIXME: documentation here!',
+	  Doc => 'Vector field plots',
 	  Code => '
            int i, j, size_x, size_y;
            PLFLT** u;
@@ -5572,14 +5545,12 @@ if ($plversion->{'plsvect'}) {
 	    Code => 'c_plscmap1a($P(r),$P(g),$P(b),$P(a),$SIZE(n));'
 	   );
 
-    # Set color map1 colors using a piece-wise linear relationship, include alpha channel
-
     pp_def ('plscmap1la',
             NoPthread => 1,
 	    Pars => 'int itype(); isty(n); coord1(n); coord2(n); coord3(n); coord4(n);'
 	    . ' int rev(nrev)',
 	    GenericTypes => [D],
-	    Doc => 'FIXME: documentation here!',
+	    Doc => 'Set color map1 colors using a piece-wise linear relationship, include alpha channel',
 	    Code => '
 	      PLINT* rev;
 
