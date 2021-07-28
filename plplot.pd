@@ -2555,13 +2555,13 @@ following functions:
 
 This difference can be got around by a call to
 
-plplot_use_standard_argument_order(1);
+  plplot_use_standard_argument_order(1);
 
 This re-arranges the string arguments to their proper/intuitive position
-compared with the C plplot interface.  This can be restored to it's default
+compared with the C plplot interface.  This can be restored to its default
 by calling:
 
-plplot_use_standard_argument_order(0);
+  plplot_use_standard_argument_order(0);
 
 The second notable different between the C and the PDL APIs is that many of
 the PDL calls do not need arguments to specify the size of the the vectors
