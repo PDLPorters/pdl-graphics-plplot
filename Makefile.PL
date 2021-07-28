@@ -3,28 +3,7 @@ use Config;
 use File::Spec;
 use Data::Dumper;
 
-# comment this block out for PDL internal version
-eval {
-  require PDL::Core::Dev;  # needed for stand-alone version of package.
-                           # Need to comment out
-                           # for package included in PDL distro.
-
-  PDL::Core::Dev->import;
-};
-my $pdl_installed = ($@) ? 0 : 1; # make always == 1 for install from PDL distro.
-print "PDL ", ($pdl_installed ? 'is' : 'is not'), " installed\n";
-# end comment this block out for PDL internal version
-
-# my $pdl_installed = 1; # uncomment for PDL-internal version
-
-if (!$pdl_installed) {
-  # write dummy makefile if PDL not installed
-  WriteMakefile(
-		'NAME'         => 'PDL::Graphics::PLplot',
-		'PREREQ_PM'    => { PDL => '2.035' }, # badval always on
-		);
-  exit;
-}
+use PDL::Core::Dev;
 
 #
 ## Search for plplot library and include file
@@ -192,6 +171,7 @@ close   $fh;
 %hash = pdlpp_stdargs(@::pack);          # use this for separate module
 
 $hash{'PREREQ_PM'} = { PDL => 0 };
+$hash{CONFIGURE_REQUIRES} = { 'PDL::Core::Dev' => 0 };
 # $hash{'OPTIMIZE'}  = '-g'; # If you want to debug, uncomment this.
 $hash{'VERSION_FROM'}   = 'plplot.pd';
 $hash{'LIBS'}      = [$libs];
