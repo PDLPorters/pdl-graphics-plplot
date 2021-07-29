@@ -29,6 +29,9 @@ PDL::Graphics::PLplot - Object-oriented interface from perl/PDL to the PLPLOT pl
   $pl->xyplot($x, $y);
   $pl->close;
 
+Only version 5.15.0+ of PLplot is supported, due to a C-level API change
+that is invisible at PDL-level.
+
 For more information on PLplot, see
 
  http://www.plplot.org/
@@ -3705,7 +3708,7 @@ pp_def ('plParseOpts',
                           args[i] = SvPV (* av_fetch (arr, i, 0), len);
                   }
 
-                  $retval() = c_plparseopts (&newargc, (const char **)args, $COMP (mode));
+                  $retval() = c_plparseopts (&newargc, (PLCHAR_NC_MATRIX)args, $COMP (mode));
 
                   for (i = 0; i < newargc; i++)
                           av_push (arr, newSVpv (args[i], 0));
@@ -4503,19 +4506,19 @@ pp_def ('plshade1',
          Doc => 'Shade individual region on the basis of value',
          Code => '
            int i, j, size_x, size_y;
-           PLFLT* a;
+           PLFLT **a;
 	   void (*pltrcb) ();
            PLPointer pltrdt;
 
            size_x = $SIZE(nx);
            size_y = $SIZE(ny);
 
-           New(3, a, size_x * size_y, PLFLT);
+           plAlloc2dGrid (&a, size_x, size_y);
            if(a == NULL) croak("Failed to allocate memory in plshade1_pp");
 
            for (i = 0; i < size_x; i++)
              for (j = 0; j < size_y; j++)
-               a[i * size_y + j] = (PLFLT) $a(nx => i, ny => j);
+               a[i][j] = $a(nx => i, ny => j);
 
            defined_subroutine = $COMP(defined);
 	   check_sub_pointer (defined_subroutine,
@@ -4531,14 +4534,14 @@ pp_def ('plshade1',
            else
              pltrdt = $COMP(pltr_data);
 
-           c_plshade1 (a, size_x, size_y,
+           c_plshade ((PLFLT_MATRIX) a, size_x, size_y,
              SvTRUE ($COMP(defined)) ? defined_callback : NULL,
              $left(), $right(), $bottom(), $top(),
              $shade_min(), $shade_max(), $sh_cmap(), $sh_color(), $sh_width(),
              $min_color(), $min_width(), $max_color(), $max_width(),
              plfill, $rectangular(), pltrcb, pltrdt);
 
-           Safefree (a);'
+           plFree2dGrid(a, size_x, size_y);'
         );
 
 # Plot gray-level image
