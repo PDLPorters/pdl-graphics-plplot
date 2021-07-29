@@ -1,8 +1,3 @@
-use Config;
-
-my $ptrsize = length($Config{'byteorder'}); # 4 or 8 bytes
-my $int_ptr_type = ($ptrsize == 4) ? 'I32' : 'long';
-
 # User can set this global variable to 1 if he wants
 # to use the normal plplot order of arguments, not the PP-required
 # order for functions with OtherPars.
@@ -38,7 +33,7 @@ For more information on PLplot, see
 
  http://www.plplot.org/
 
-Also see the test file, F<t/plplot.pl> in this distribution for some working examples.
+Also see the test file, F<t/plplot.t> in this distribution for some working examples.
 
 =head1 LONG NAMES
 
@@ -3702,7 +3697,7 @@ pp_def ('plParseOpts',
                 arr = (AV*) SvRV (sv);
                 newargc = argc = av_len (arr) + 1;
                 if (argc > 0) {
-                  New(1, args, argc, char *);
+                  Newx(args, argc, char *);
                   if(args == NULL) croak("Failed to allocate memory in plParseOpts");
 
                   for (i = 0; i < argc; i++) {
@@ -3890,7 +3885,7 @@ EOC
 
 pp_def ('plAllocGrid',
         NoPthread => 1,
-        Pars => 'double xg(nx); double yg(ny); int [o] grid()',
+        Pars => 'double xg(nx); double yg(ny); indx [o] grid()',
         GenericTypes => [D],
         Doc => 'Allocates a PLcGrid object for use in pltr1',
         Code => '
@@ -3900,11 +3895,11 @@ pp_def ('plAllocGrid',
           nx = $SIZE(nx);
           ny = $SIZE(ny);
 
-          New(1, grid, 1, PLcGrid);
+          Newx(grid, 1, PLcGrid);
           if(grid == NULL) croak("Failed to allocate memory for grid");
-          Newz(2, grid->xg, nx, PLFLT);
+          Newxz(grid->xg, nx, PLFLT);
           if(grid->xg == NULL) croak("Failed to allocate memory for grid->xg");
-          Newz(3, grid->yg, ny, PLFLT);
+          Newxz(grid->yg, ny, PLFLT);
           if(grid->yg == NULL) croak("Failed to allocate memory for grid->yg");
           grid->nx = nx;
           grid->ny = ny;
@@ -3915,7 +3910,7 @@ pp_def ('plAllocGrid',
           for (i = 0; i < ny; i++)
             grid->yg[i] = $yg(ny => i);
 
-          $grid() = ('.$int_ptr_type.') grid;'
+          $grid() = (IV) grid;'
         );
 
 
@@ -3936,7 +3931,7 @@ pp_add_exported (plFreeGrid);
 
 pp_def ('plAlloc2dGrid',
         NoPthread => 1,
-        Pars => 'double xg(nx,ny); double yg(nx,ny); int [o] grid()',
+        Pars => 'double xg(nx,ny); double yg(nx,ny); indx [o] grid()',
         GenericTypes => [D],
         Doc => 'Allocates a PLcGrid2 object for use in pltr2',
         Code => '
@@ -3959,7 +3954,7 @@ pp_def ('plAlloc2dGrid',
           grid->nx = nx;
           grid->ny = ny;
 
-          $grid() = ('.$int_ptr_type.') grid;'
+          $grid() = (IV) grid;'
         );
 
 
