@@ -4241,13 +4241,12 @@ pp_addpm (<<'EOPM');
 init_pltr (\&pltr0, \&pltr1, \&pltr2);
 EOPM
 
-# plot continental outline in world coordinates
-
 pp_def ('plmap',
         NoPthread => 1,
         Pars => 'minlong(); maxlong(); minlat(); maxlat();', # 0-3
 	OtherPars => 'SV* mapform; char* type;', # 4,5
 	PMCode => _make_reorder('plmap'),
+	Doc => 'plot continental outline in world coordinates',
         GenericTypes => [D],
         Code => '
            int use_xform;
@@ -4497,8 +4496,6 @@ pp_def ('plscmap1l',
 	                       $P(coord2), $P(coord3), rev);'
         );
 
-# Shade individual region on the basis of value
-
 pp_def ('plshade1',
         NoPthread => 1,
          GenericTypes => [D],
@@ -4508,7 +4505,7 @@ pp_def ('plshade1',
                  . 'rectangular()', # 0-14
          OtherPars => 'SV* defined; SV* pltr; SV* pltr_data;',# 15-17
          PMCode => _make_reorder('plshade1'),
-         Doc => 'FIXME: documentation here!',
+         Doc => 'Shade individual region on the basis of value',
          Code => '
            int i, j, size_x, size_y;
            PLFLT* a;
