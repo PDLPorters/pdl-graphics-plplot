@@ -2500,11 +2500,11 @@ my %REORDER = (
  plmtex       => [3,0,1,2,4],
  plmtex3      => [3,0,1,2,4],
  plstart      => [2,0,1],
- plstripc     => [13,14,0,1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18],
- plmap        => [4,5,0,1,2,3],
- plmeridians  => [6,0,1,2,3,4,5],
- plshades     => [0,10,1,2,3,4,5,6,7,8,9,11,12],
- plshade1     => [0,15,1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17],
+ plstripc     => [13,14,15,0..12,16..19],
+ plmap        => [4,5,0..3],
+ plmeridians  => [6,0..5],
+ plshades     => [0,10,1..9,11,12],
+ plshade1     => [0,15,1..14,16,17],
 );
 
 sub _reorder {
@@ -4829,12 +4829,13 @@ pp_addpm ('sub plstripc { plstripc_pp ($standard_order ? _reorder ("plstripc", @
 pp_def ('plstripc_pp',
         NoPthread => 1,
          GenericTypes => [D],
-         Pars => 'xmin(); xmax(); xjump(); ymin(); ymax();'
-	         . 'xlpos(); ylpos(); int y_ascl(); int acc();'
-                 . 'int colbox(); int collab();'
-                 . 'int colline(n); int styline(n);  int [o] id()', # 0-12
-         OtherPars => 'char* xspec; char* yspec; SV* legline;' # 13-18
-                      . 'char* labx; char* laby; char* labtop',
+         Pars => 'xmin(); xmax(); xjump(); ymin(); ymax();' # 0-4
+	         . 'xlpos(); ylpos(); int y_ascl(); int acc();' # 5-8
+                 . 'int colbox(); int collab();' # 9-10
+                 . 'int colline(n); int styline(n);' # 11-12
+                 . 'int [o] id()', # 13 if given - else decr the rest
+         OtherPars => 'char* xspec; char* yspec; SV* legline;' # 14-16
+                      . 'char* labx; char* laby; char* labtop', # 17-19
          Doc => 'FIXME: documentation here!',
          Code => '
            I32 i;
