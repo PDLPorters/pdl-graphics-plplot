@@ -16,9 +16,7 @@ my $libbasename;
 my $libname;
 my $plplot_lib_path;
 
-# PLplot 5.11.0 renamed the library from plplotd to plplot. Search for both of
-# them.
-foreach ('plplot', 'plplotd') {
+foreach ('plplot') {
   # on OS-X the library is called libplplot.dylib, so we
   # use $Config{"so"} to get the extension name
   #
@@ -30,7 +28,6 @@ foreach ('plplot', 'plplotd') {
   foreach my $libdir (
               split(' ', $Config{libpth}), # not perl-in-space friendly
               $ENV{PLPLOT_LIBDIR},
-              $PDL::Config{WHERE_PLPLOT_LIBS},
               '/usr/local/plplot/lib64',
                       '/usr/local/plplot/lib',
               '/usr/local/lib64',
