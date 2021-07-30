@@ -155,14 +155,9 @@ open my $fh, '>', 'OPTIONS!' or die "Cannot write to OPTIONS! file";
 print  {$fh} Dumper(\%plversion);
 close   $fh;
 
-#
-## new way to get writemakefile args...
-#
 @pack = (["plplot.pd",PLplot,PDL::Graphics::PLplot]);
 
-#%hash = pdlpp_stdargs_int(@::pack);  # use this for module inside PDL source
-%hash = pdlpp_stdargs(@::pack);          # use this for separate module
-
+my %hash = pdlpp_stdargs(@::pack);
 $hash{'PREREQ_PM'} = { PDL => 0 };
 $hash{CONFIGURE_REQUIRES} = {
   'PDL::Core::Dev' => 0,
@@ -173,9 +168,6 @@ $hash{TEST_REQUIRES} = {
 };
 $hash{'VERSION_FROM'}   = 'plplot.pd';
 $hash{'LIBS'}      = [$libs];
-# add this to allow one to use the /ops/tools/lib plplot libs even when
-# another plplot is installed in /usr/local/lib. D. Hunt 6/4/2004
-$hash{'LDDLFLAGS'} = " -shared -L$plplot_lib_path -L/usr/local/lib ";
 $hash{'INC'}      .= " $plplot_include_path";
 $hash{'clean'}     = {'FILES'  =>
                         'PLplot.pm PLplot.xs PLplot.o PLplot.c PLplot.bs *svg.* *.xfig temp* OPTIONS! Makefile.old'};
