@@ -1,3 +1,4 @@
+0.77 2021-07-30
 - fix logic error in plslabelfunc
 - build will stop unless has plplot 5.15+
 
