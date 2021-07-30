@@ -1,14 +1,11 @@
+use strict;
+use warnings;
 use ExtUtils::MakeMaker;
 use Config;
 use File::Spec;
 use Data::Dumper;
 
 use PDL::Core::Dev;
-
-#
-## Search for plplot library and include file
-#
-print "\nChecking PDL::Graphics::PLplot...\n";
 
 unlink ("OPTIONS!"); # remove file used to communicate with plplot.pd
 
@@ -23,8 +20,6 @@ foreach ('plplot') {
   $libbasename = $_;
   $libname = "lib${libbasename}." . $Config{"so"};
   my $libname_static = "lib{$libbasename}.a";
-  print "Searching for ${libname} library.\n";
-
   foreach my $libdir (
               split(' ', $Config{libpth}), # not perl-in-space friendly
               $ENV{PLPLOT_LIBDIR},
@@ -56,7 +51,6 @@ foreach ('plplot') {
   }
 
   if (defined $plplot_lib_path) {
-      print "Found in ${plplot_lib_path}.\n";
       last;
   }
 }
@@ -66,11 +60,10 @@ unless (defined ($plplot_lib_path)) {
 }
 
 my $incname = "plplot.h";
-my $devnull = File::Spec->devnull(); # Portable null device.
+my $plplot_include_path;
 
 foreach my $incdir (
-		    $ENV{PLPLOT_INCDIR},
-		    $PDL::Config{WHERE_PLPLOT_INCLUDE},
+		    $ENV{PLPLOT_INCDIR} || (),
                     '/usr/local/plplot/include',
                     '/usr/local/plplot/include/plplot',
 		    '/usr/local/include/plplot',
@@ -88,7 +81,7 @@ foreach my $incdir (
   if (-e "$incdir/$incname") {
     $plplot_include_path = "-I$incdir";
     if ($incdir =~ m|/plplot$|) {
-      $inc2 = $incdir;
+      my $inc2 = $incdir;
       $inc2 =~ s|/plplot$||;
       $plplot_include_path .= " -I$inc2";
     }
@@ -110,7 +103,6 @@ foreach my $l (
 	       ) {
   if (trylink( '', '#include <plplot.h>', 'plinit();', "$l $plplot_include_path")) {
     $libs = $l;
-    print "\tSucceeded linking PLplot with $libs\n";
     last;
   }
 }
@@ -126,8 +118,10 @@ main () {  printf  ("%d", sizeof (PLFLT)); }
 EOC
 
 unless ($size == 8) {
-  print "          Sizeof(PLFLT) must be 8. PLplot must be compiled --with-double (IE ./configure --with-double)\n";
-  die "PLplot was not compiled --with-double\n";
+  die <<'EOF';
+Sizeof(PLFLT) must be 8.
+PLplot must be compiled --with-double (IE ./configure --with-double).
+EOF
 }
 
 #
@@ -155,9 +149,9 @@ open my $fh, '>', 'OPTIONS!' or die "Cannot write to OPTIONS! file";
 print  {$fh} Dumper(\%plversion);
 close   $fh;
 
-@pack = (["plplot.pd",PLplot,PDL::Graphics::PLplot]);
+my @pack = ([qw(plplot.pd PLplot PDL::Graphics::PLplot)]);
 
-my %hash = pdlpp_stdargs(@::pack);
+my %hash = pdlpp_stdargs(@pack);
 $hash{'PREREQ_PM'} = { PDL => 0 };
 $hash{CONFIGURE_REQUIRES} = {
   'PDL::Core::Dev' => 0,
@@ -183,7 +177,7 @@ $hash{META_MERGE} = {
  x_IRC => 'irc://irc.perl.org/#pdl',
 };
 
-my $postamble = pdlpp_postamble(@::pack);
+my $postamble = pdlpp_postamble(@pack);
 
 WriteMakefile(%hash);
 
@@ -191,31 +185,12 @@ WriteMakefile(%hash);
 sub MY::postamble { $postamble };
 
 sub test_func_exists {
-
-    my ( $func, $comment, $eval, $option ) = @_;
-
-    $option = $func unless defined $option;
-
-    # Test if PLplot has plsmem, for in memory plotting
-    eval { compileAndRun ("$plplot_include_path $libs", 0, <<"EOC");
+    my ( $func, $comment, $eval ) = @_;
+    eval { compileAndRun ("$plplot_include_path $libs", 0, <<"EOC") };
 #include <plplot.h>
 main () {  $eval }
 EOC
-       };
-
-    my $have_func;
-    if ($@)
-    {
-	print "\t$func function not found, no $comment available\n";
-	$have_func = 0;
-    }
-    else
-    {
-	print "\t$func function found, $comment available!\n";
-	$have_func = 1;
-    }
-
-    return $have_func;
+    return !$@;
 }
 
 sub compileAndRun {
@@ -235,6 +210,7 @@ sub compileAndRun {
 
   # The duplication of $flags seems to be necessary, as some systems
   # need $flags before temp.c and some after.  D. Hunt 2/9/2011
+  my $devnull = File::Spec->devnull();
   system "$cc $ccflags $flags temp.c $flags -o temp > $devnull 2>&1";
   unlink('./temp.c');
   die "Cannot compile test program: $code" unless (-e 'temp' or -e 'temp.exe');
