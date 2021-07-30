@@ -169,8 +169,7 @@ $hash{TEST_REQUIRES} = {
 $hash{'VERSION_FROM'}   = 'plplot.pd';
 $hash{'LIBS'}      = [$libs];
 $hash{'INC'}      .= " $plplot_include_path";
-$hash{'clean'}     = {'FILES'  =>
-                        'PLplot.pm PLplot.xs PLplot.o PLplot.c PLplot.bs *svg.* *.xfig temp* OPTIONS! Makefile.old'};
+$hash{clean}{FILES} .= ' *svg.* *.xfig temp* OPTIONS!';
 $hash{META_MERGE} = {
   "meta-spec" => { version => 2 },
   resources => {
