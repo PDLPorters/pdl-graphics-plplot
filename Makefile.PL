@@ -173,8 +173,8 @@ $hash{META_MERGE} = {
        type => 'git',
        web => 'https://github.com/PDLPorters/pdl-graphics-plplot',
     },
+    x_IRC => 'irc://irc.perl.org/#pdl',
   },
- x_IRC => 'irc://irc.perl.org/#pdl',
 };
 
 my $postamble = pdlpp_postamble(@pack);
