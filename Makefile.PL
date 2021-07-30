@@ -7,6 +7,9 @@ use Data::Dumper;
 
 use PDL::Core::Dev;
 
+my $PL_MAJOR = 5; # minimum required
+my $PL_MINOR = 15;
+
 unlink ("OPTIONS!"); # remove file used to communicate with plplot.pd
 
 my $libbasename;
@@ -122,6 +125,19 @@ unless ($size == 8) {
 Sizeof(PLFLT) must be 8.
 PLplot must be compiled --with-double (IE ./configure --with-double).
 EOF
+}
+
+my $plgver = compileAndRun ("$plplot_include_path $libs", 1, <<'EOC');
+#include <plplot.h>
+main () {
+  char ver[80];
+  c_plgver(ver);
+  fputs(ver, stdout);
+}
+EOC
+my @plver = split /\./, $plgver;
+unless ($plver[0] > $PL_MAJOR or ($plver[0] == $PL_MAJOR and $plver[1] >= $PL_MINOR)) {
+  die "Insufficient plplot version '$plgver'; need at least $PL_MAJOR.$PL_MINOR\n";
 }
 
 #

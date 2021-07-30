@@ -1,4 +1,5 @@
 - fix logic error in plslabelfunc
+- build will stop unless has plplot 5.15+
 
 0.76 2021-07-29
 - add pl_cmd and pl_setCairoCtx - thanks @mikef5410
