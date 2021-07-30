@@ -62,8 +62,7 @@ foreach ('plplot') {
 }
 
 unless (defined ($plplot_lib_path)) {
-  buildDummy ("Cannot find plplot library ($libname), skipping PDL::Graphics::PLplot\n");
-  return if (caller); exit;
+  die "Cannot find plplot library $libname\n";
 }
 
 my $incname = "plplot.h";
@@ -98,8 +97,7 @@ foreach my $incdir (
 }
 
 unless (defined ($plplot_include_path)) {
-  buildDummy ("Cannot find plplot header file ($incname), skipping PDL::Graphics::PLplot\n");
-  return if (caller); exit;
+  die "Cannot find plplot header file ($incname)\n";
 }
 
 # Try linking with library.  New if blocks should be added if necessary
@@ -118,8 +116,7 @@ foreach my $l (
 }
 
 unless (defined($libs)) {
-  buildDummy ("Cannot find good set of libraries for linking PLplot, try fiddling perldl.conf\n");
-  return if (caller); exit;
+  die "Cannot find good set of libraries for linking PLplot\n";
 }
 
 # Test that PLplot was compiled --with-double (IE, a PLFLT is a double)
@@ -130,8 +127,7 @@ EOC
 
 unless ($size == 8) {
   print "          Sizeof(PLFLT) must be 8. PLplot must be compiled --with-double (IE ./configure --with-double)\n";
-  buildDummy ("PLplot was not compiled --with-double, try fiddling perldl.conf\n");
-  return if (caller); exit;
+  die "PLplot was not compiled --with-double\n";
 }
 
 #
@@ -168,7 +164,9 @@ close   $fh;
 %hash = pdlpp_stdargs(@::pack);          # use this for separate module
 
 $hash{'PREREQ_PM'} = { PDL => 0 };
-$hash{CONFIGURE_REQUIRES} = { 'PDL::Core::Dev' => 0 };
+$hash{CONFIGURE_REQUIRES} = {
+  'PDL::Core::Dev' => 0,
+};
 # $hash{'OPTIMIZE'}  = '-g'; # If you want to debug, uncomment this.
 $hash{TEST_REQUIRES} = {
   'Test::More' => '0.88', # done_testing
@@ -194,8 +192,7 @@ $hash{META_MERGE} = {
  x_IRC => 'irc://irc.perl.org/#pdl',
 };
 
-my $postamble = pdlpp_postamble(@::pack); # use for external module
-#my $postamble = pdlpp_postamble_int(@::pack); # use for install inside PDL distro
+my $postamble = pdlpp_postamble(@::pack);
 
 WriteMakefile(%hash);
 
@@ -255,13 +252,4 @@ sub compileAndRun {
   my $res = `./temp`;
   unlink ('./temp');
   return $res;
-}
-
-sub buildDummy {
-  my $msg = shift;
-  $msg .= "\n      Not building PDL::Graphics::PLplot\n";
-  warn $msg . "\n";
-  $msg =~ s/\n//g;
-  write_dummy_make( $msg );
-  $PDL::Config{WITH_PLPLOT} = 0;
 }
