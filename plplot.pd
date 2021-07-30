@@ -955,13 +955,10 @@ close whenever the PLplot object passes out of scope.
 
 =cut
 
-# pull in low level interface
-use vars qw(%_constants %_actions);
-
 # Colors (from rgb.txt) are stored as RGB triples
 # with each value from 0-255
 sub cc2t { [map {hex} split ' ', shift] }
-%_constants = (
+our %_constants = (
 	       BLACK          => [  0,  0,  0],
 	       RED            => [240, 50, 50],
 	       YELLOW         => [255,255,  0],
@@ -1003,7 +1000,7 @@ sub cc2t { [map {hex} split ' ', shift] }
 # a hash of subroutines to invoke when certain keywords are specified
 # These are called with arg(0) = $self (the plot object)
 #                   and arg(1) = value specified for keyword
-%_actions =
+our %_actions =
   (
 
 
@@ -1028,9 +1025,8 @@ sub cc2t { [map {hex} split ' ', shift] }
                        plschr (0, $self->{CHARSIZE}) unless ($self->{ISNEW}); # do not call plsch from the 'new' routine.
                      },
 
-   COLOR =>
    # maintain color map, set to specified rgb triple
-   sub {
+   COLOR => sub {
      my $self  = shift;
      my $color = _color(shift);
 
@@ -1099,9 +1095,8 @@ sub cc2t { [map {hex} split ' ', shift] }
    FILE       => sub { plsfnam  ($_[1]) },   # this must be specified with call to new!
 
    # set color for index 1, the plot frame and text
-   FRAMECOLOR =>
    # set color index 1, the frame color
-   sub {
+   FRAMECOLOR => sub {
      my $self  = shift;
      my $color = _color(shift);
      $self->{COLORS}[1] = $color;
@@ -1218,10 +1213,8 @@ sub cc2t { [map {hex} split ' ', shift] }
        $self->{PAGESIZE} = $dims;
      },
 
-   PALETTE =>
-
    # load some pre-done color map 1 setups
-   sub {
+   PALETTE => sub {
      my $self = shift;
      my $pal  = shift;
 
@@ -1246,9 +1239,8 @@ sub cc2t { [map {hex} split ' ', shift] }
      }
    },
 
-   PLOTTYPE =>
    # specify plot type (LINE, POINTS, LINEPOINTS, CONTOUR, SHADE)
-   sub {
+   PLOTTYPE => sub {
      my $self = shift;
      my $val  = shift;
 
@@ -1272,9 +1264,8 @@ sub cc2t { [map {hex} split ' ', shift] }
      }
    },
 
-   SUBPAGE =>
    # specify which subpage to plot on 1-N or 0 (meaning 'next')
-   sub {
+   SUBPAGE => sub {
      my $self = shift;
      my $val  = shift;
      my $err  = "SUBPAGE = \$npage where \$npage = 1-N or 0 (for 'next subpage')";
@@ -1285,9 +1276,8 @@ sub cc2t { [map {hex} split ' ', shift] }
      }
    },
 
-   SUBPAGES =>
    # specify number of sub pages [nx, ny]
-   sub {
+   SUBPAGES => sub {
      my $self = shift;
      my $val  = shift;
      my $err  = "SUBPAGES = [\$nx, \$ny] where \$nx and \$ny are between 1 and 127";
@@ -1303,9 +1293,8 @@ sub cc2t { [map {hex} split ' ', shift] }
      }
    },
 
-   SYMBOL =>
    # specify type of symbol to plot
-   sub {
+   SYMBOL => sub {
      my $self = shift;
      my $val  = shift;
 
@@ -1322,20 +1311,17 @@ sub cc2t { [map {hex} split ' ', shift] }
      $self->{SYMBOLSIZE} = $size;
    },
 
-   TEXTPOSITION =>
    # specify placement of text.  Either relative to border, specified as:
    # [$side, $disp, $pos, $just]
    # or
    # inside plot window, specified as:
    # [$x, $y, $dx, $dy, $just] (see POD doc for details)
-   sub {
+   TEXTPOSITION => sub {
      my $self = shift;
      my $val  = shift;
-
      die "TEXTPOSITION value must be an array ref with either:
           [$side, $disp, $pos, $just] or [$x, $y, $dx, $dy, $just]"
        unless ((ref($val) =~ /ARRAY/) and ((@$val == 4) || (@$val == 5)));
-
      if (@$val == 4) {
        $self->{TEXTMODE} = 'border';
      } else {
@@ -1367,17 +1353,14 @@ sub cc2t { [map {hex} split ' ', shift] }
      $self->{VIEWPORT} = $vp;
    },
 
-   XBOX       =>
-     # set X axis label options.  See pod for definitions.
-     sub {
-       my $self = shift;
-       my $opts = lc shift;
-
-       my @opts = split '', $opts;
-       map { 'abcdfghilmnst' =~ /$_/i || die "Illegal option $_.  Only abcdfghilmnst permitted" } @opts;
-
-       $self->{XBOX} = $opts;
-     },
+   # set X axis label options.  See pod for definitions.
+   XBOX       => sub {
+     my $self = shift;
+     my $opts = lc shift;
+     my @opts = split '', $opts;
+     map { 'abcdfghilmnst' =~ /$_/i || die "Illegal option $_.  Only abcdfghilmnst permitted" } @opts;
+     $self->{XBOX} = $opts;
+   },
 
    # draw an X axis label for the graph
    XLAB       => sub {
@@ -1394,17 +1377,14 @@ sub cc2t { [map {hex} split ' ', shift] }
      $self->{XTICK} = $val;
    },
 
-   YBOX       =>
      # set Y axis label options.  See pod for definitions.
-     sub {
-       my $self = shift;
-       my $opts = shift;
-
-       my @opts = split '', $opts;
-       map { 'abcfghilmnstv' =~ /$_/i || die "Illegal option $_.  Only abcfghilmnstv permitted" } @opts;
-
-       $self->{YBOX} = $opts;
-     },
+   YBOX       => sub {
+     my $self = shift;
+     my $opts = shift;
+     my @opts = split '', $opts;
+     map { 'abcfghilmnstv' =~ /$_/i || die "Illegal option $_.  Only abcfghilmnstv permitted" } @opts;
+     $self->{YBOX} = $opts;
+   },
 
    # draw an Y axis label for the graph
    YLAB       => sub {
@@ -1723,13 +1703,6 @@ sub xyplot {
   plflush();
 }
 
-
-# Handle sets of 2D strip plots sharing one X axis.  Input is
-# $self -- PLplot object with existing options
-# $xs   -- Ref to list of 1D PDLs with X values
-# $ys   -- Ref to list of 1D PDLs with Y values
-#          or a 2D PDL
-# %opts -- Options values
 sub stripplots {
 
   my $self    = shift;
@@ -1939,7 +1912,6 @@ sub colorkey {
   plflush();
 }
 
-# handle shade plots of gridded (2D) data
 sub shadeplot {
   my $self   = shift;
   my $z      = shift;
@@ -2032,13 +2004,6 @@ sub shadeplot {
   plflush();
 }
 
-
-# This subroutine plots a histogram of a 1-D PDL of data.
-# An alternative to the 'histogram' subroutine below.  Draws filled
-# bars and scales the Y axis better.
-#
-# @parameter  $data  -- 1-D PDL
-# @           $pl    -- PLplot handle
 sub histogram1 {
   my $self  = shift;
   my $x     = shift;
@@ -2093,7 +2058,6 @@ sub histogram1 {
 
 }
 
-# handle histograms
 sub histogram {
   my $self   = shift;
   my $x      = shift;
@@ -2144,7 +2108,6 @@ sub histogram {
   plflush();
 }
 
-# Draw bar graphs
 sub bargraph {
   my $self   = shift;
   my $labels = shift; # ref to perl list of labels for bars
@@ -2260,7 +2223,6 @@ sub bargraph {
   plflush();
 }
 
-# Add text to a plot
 sub text {
   my $self = shift;
   my $text = shift;
@@ -3598,8 +3560,6 @@ pp_def ('plcolorpoints',
          Doc => $doc,
        );
 
-
-
 pp_def ('plsmem',
         NoPthread => 1,
 	     GenericTypes => [B],
@@ -3607,14 +3567,11 @@ pp_def ('plsmem',
              Code => 'c_plsmem($maxx(),$maxy(),$P(image));'
             ) if ($plversion->{'plsmem'});
 
-#
-## Box drawing primitive, taken from PLPLOT bar graph example
-#
-
 pp_def ('plfbox',
         NoPthread => 1,
          Pars => 'xo(); yo()',
          GenericTypes => [D],
+         Doc => 'Box drawing primitive, taken from PLPLOT bar graph example',
          Code => 'PLFLT x[4], y[4];
                   x[0] = $xo() - 0.5;
                   y[0] = 0.;
@@ -3627,11 +3584,11 @@ pp_def ('plfbox',
                   plfill(4, x, y);',
         );
 
-# Box drawing primitive that allows specifying base height and width in addition to offset and height
 pp_def ('plfbox1',
         NoPthread => 1,
          Pars => 'xo(); yo(); bh(); w()',
          GenericTypes => [D],
+         Doc => 'Box drawing primitive that allows specifying base height and width in addition to offset and height',
          Code => 'PLFLT x[4], y[4];
                   x[0] = $xo() - ( 0.5 * $w() );
                   y[0] = $bh();
@@ -3644,13 +3601,11 @@ pp_def ('plfbox1',
                   plfill(4, x, y);',
         );
 
-#
-## Similar box drawing primitive, but without fill (just draw outline of box)
-#
 pp_def ('plunfbox',
         NoPthread => 1,
          Pars => 'xo(); yo()',
          GenericTypes => [D],
+         Doc => 'Similar box drawing primitive, but without fill (just draw outline of box)',
          Code => 'PLFLT x[4], y[4];
                   x[0] = $xo() - 0.5;
                   y[0] = 0.;
@@ -3663,11 +3618,11 @@ pp_def ('plunfbox',
                   plline(4, x, y);',
         );
 
-# Box drawing primitive that allows specifying base height and width in addition to offset and height
 pp_def ('plunfbox1',
         NoPthread => 1,
          Pars => 'xo(); yo(); bh(); w()',
          GenericTypes => [D],
+         Doc => 'Box drawing primitive that allows specifying base height and width in addition to offset and height',
          Code => 'PLFLT x[4], y[4];
                   x[0] = $xo() - ( 0.5 * $w() );
                   y[0] = $bh();
@@ -3721,78 +3676,75 @@ pp_def ('plParseOpts',
         ',
 );
 
-# Plots a character at the specified points
-
 pp_def ('plpoin',
         NoPthread => 1,
          Pars => 'x(n); y(n); int code()',
          GenericTypes => [D],
+         Doc => 'Plots a character at the specified points',
          Code => 'c_plpoin($SIZE(n),$P(x),$P(y),$code());'
         );
-
-# Plots a character at the specified points in 3 space
 
 pp_def ('plpoin3',
         NoPthread => 1,
          Pars => 'x(n); y(n); z(n); int code()',
          GenericTypes => [D],
+         Doc => 'Plots a character at the specified points in 3 space',
          Code => 'c_plpoin3($SIZE(n),$P(x),$P(y),$P(z),$code());'
         );
-
-# Draw a line in 3 space
 
 pp_def ('plline3',
         NoPthread => 1,
          Pars => 'x(n); y(n); z(n)',
          GenericTypes => [D],
+         Doc => 'Draw a line in 3 space',
          Code => 'c_plline3($SIZE(n),$P(x),$P(y),$P(z));'
         );
 
-# Draws a polygon in 3 space
 pp_def ('plpoly3',
         NoPthread => 1,
          Pars => 'x(n); y(n); z(n); int draw(m); int ifcc()',
          GenericTypes => [D],
+         Doc => 'Draws a polygon in 3 space',
          Code => 'c_plpoly3($SIZE(n),$P(x),$P(y),$P(z),$P(draw),$ifcc());'
         );
 
-# Plot a histogram from unbinned data
 pp_def ('plhist',
         NoPthread => 1,
          Pars => 'data(n); datmin(); datmax(); int nbin(); int oldwin()',
          GenericTypes => [D],
+         Doc => 'Plot a histogram from unbinned data',
          Code => 'c_plhist($SIZE(n),$P(data),$datmin(),$datmax(),$nbin(),$oldwin());'
         );
 
-# Area fill
 pp_def ('plfill',
         NoPthread => 1,
          Pars => 'x(n); y(n)',
          GenericTypes => [D],
+         Doc => 'Area fill',
          Code => 'c_plfill($SIZE(n),$P(x),$P(y));'
         );
 
-# Area fill with color gradient
 pp_def ('plgradient',
         NoPthread => 1,
          Pars => 'x(n); y(n); angle();',
          GenericTypes => [D],
+         Doc => 'Area fill with color gradient',
          Code => 'c_plgradient($SIZE(n),$P(x),$P(y),$angle());'
         ) if ($plversion->{'c_pllegend'});
 
-# Plots a symbol at the specified points
 pp_def ('plsym',
         NoPthread => 1,
          Pars => 'x(n); y(n); int code()',
          GenericTypes => [D],
+         Doc => 'Plots a symbol at the specified points',
          Code => 'c_plsym($SIZE(n),$P(x),$P(y),$code());'
         );
 
-# Plot shaded 3-d surface plot
 pp_def ('plsurf3d',
         NoPthread => 1,
          Pars => 'x(nx); y(ny); z(nx,ny); int opt(); clevel(nlevel);',
          GenericTypes => [D],
+         Doc => 'Plot shaded 3-d surface plot',
          Code => '
            int i, j, size_x, size_y;
            PLFLT** zz;
@@ -3808,11 +3760,11 @@ pp_def ('plsurf3d',
            plFree2dGrid (zz, size_x, size_y);'
         );
 
-# Plot shaded 3-d surface plot with limits
 pp_def('plsurf3dl',
         NoPthread => 1,
         Pars => 'x(nx); y(ny); z(nx,ny); int opt(); clevel(nlevel); int indexxmin(); int indexxmax(); int indexymin(nx); int indexymax(nx);',
         GenericTypes => [D],
+        Doc => 'Plot shaded 3-d surface plot with limits',
         Code => '
           int i, j, size_x, size_y;
           PLFLT** zz;
@@ -3830,12 +3782,11 @@ pp_def('plsurf3dl',
           plFree2dGrid (zz, size_x, size_y);'
 );
 
-# Set line style
-
 pp_def ('plstyl',
         NoPthread => 1,
          Pars => 'int mark(nms); int space(nms)',
          GenericTypes => [D],
+         Doc => 'Set line style',
          Code => 'c_plstyl ($SIZE(nms), $P(mark), $P(space));'
        );
 
@@ -3857,9 +3808,6 @@ if ($plversion->{'c_plseed'}) {
         );
 
 } # $plversion->{'c_plseed'}
-
-# Plot contours
-
 
 # pltr0: Identity transformation
 # pltr1: Linear interpolation from singly dimensioned coord arrays
@@ -4257,43 +4205,38 @@ pp_def ('plmap',
 	     $COMP(type), $minlong(), $maxlong(), $minlat(), $maxlat());',
        );
 
-# plot a string along a line
 pp_def ('plstring',
         NoPthread => 1,
         Pars         => 'x(na); y(na);',
 	OtherPars    => 'char* string;',
         GenericTypes => [D],
+        Doc => 'plot a string along a line',
         Code         => 'c_plstring($SIZE(na), $P(x), $P(y), $COMP(string));',
        ) if ($plversion->{'c_pllegend'});
 
-# plot a string along a 3D line
 pp_def ('plstring3',
         NoPthread => 1,
         Pars         => 'x(na); y(na); z(na)',
 	OtherPars    => 'char* string;',
         GenericTypes => [D],
+        Doc => 'plot a string along a 3D line',
         Code         => 'c_plstring3($SIZE(na), $P(x), $P(y), $P(z), $COMP(string));',
        ) if ($plversion->{'c_pllegend'});
 
-# Plot the latitudes and longitudes on the background
 pp_def ('plmeridians',
         NoPthread => 1,
         Pars => 'dlong(); dlat(); minlong(); maxlong(); minlat(); maxlat();', # 0-5
 	OtherPars => 'SV* mapform;', # 6
 	PMCode => _make_reorder('plmeridians'),
         GenericTypes => [D],
+        Doc => 'Plot the latitudes and longitudes on the background',
         Code => '
            mapform_subroutine = $COMP(mapform);
 	   check_sub_pointer (mapform_subroutine,
 	     "plmeridians: mapform must be either 0 or a subroutine pointer");
-
            plmeridians (SvTRUE ($COMP(mapform)) ? mapform_callback : NULL,
 	     $dlong(), $dlat(), $minlong(), $maxlong(), $minlat(), $maxlat());'
        );
-
-# Set the global coordinate transform
-
-# Shade regions on the basis of value
 
 pp_def ('plshades',
         NoPthread => 1,
@@ -4303,6 +4246,7 @@ pp_def ('plshades',
          OtherPars => 'SV* defined; SV* pltr; SV* pltr_data;', # 10-12
          PMCode => _make_reorder('plshades'),
          GenericTypes => [D],
+         Doc => 'Shade regions on the basis of value',
          Code => '
            int nx    = $SIZE(x);
            int ny    = $SIZE(y);
@@ -4347,7 +4291,7 @@ pp_def ('plcont',
          Pars => 'f(nx,ny); int kx(); int lx(); int ky(); int ly(); '
                  . 'clevel(nlevel)', # 0-5
          OtherPars => 'SV* pltr; SV* pltr_data;', # 6,7
-         Doc => 'FIXME: documentation here!',
+         Doc => 'Plot contours',
          Code => '
            int i, j, size_x, size_y;
            PLFLT** ff;
@@ -4544,11 +4488,10 @@ pp_def ('plshade1',
            plFree2dGrid(a, size_x, size_y);'
         );
 
-# Plot gray-level image
-
 pp_def ('plimage',
          NoPthread => 1,
          GenericTypes => [D],
+         Doc => 'Plot gray-level image',
          Pars => 'idata(nx,ny); xmin(); xmax(); ymin(); ymax();'
 	         . 'zmin(); zmax(); Dxmin(); Dxmax(); Dymin(); Dymax();',
          Code => '
@@ -4572,8 +4515,6 @@ pp_def ('plimage',
 	);
 
 
-# Plot image with transformation
-
 if ($plversion->{'c_plimagefr'}) {
 
   pp_def ('plimagefr',
@@ -4584,6 +4525,7 @@ if ($plversion->{'c_plimagefr'}) {
           Pars => 'idata(nx,ny); xmin(); xmax(); ymin(); ymax();'
           . 'zmin(); zmax(); valuemin(); valuemax();', # 0-8
           OtherPars => 'SV* pltr; SV* pltr_data;', # 9,10
+          Doc => 'Plot image with transformation',
           Code => '
            int i, j, size_x, size_y;
            PLFLT** idata;
@@ -4619,9 +4561,6 @@ if ($plversion->{'c_plimagefr'}) {
 
 } # $plversion->{'c_plimagefr'}
 
-# Set xor mode:
-# mode = 1-enter, 0-leave, status = 0 if not interactive device
-
 pp_addpm (<<'EOPM');
 =head2 plxormod
 
@@ -4630,6 +4569,9 @@ pp_addpm (<<'EOPM');
   $status = plxormod ($mode)
 
 =for ref
+
+Set xor mode:
+mode = 1-enter, 0-leave, status = 0 if not interactive device
 
 See the PLplot manual for reference.
 
@@ -4649,8 +4591,6 @@ OUTPUT:
 EOC
 
 pp_add_exported ('plxormod');
-
-# Wait for graphics input event and translate to world coordinates
 
 pp_addpm (<<'EOPM');
 =head2 plGetCursor
@@ -4810,8 +4750,6 @@ EOC
 
 pp_add_exported ('plmkstrm');
 
-# Get the current library version number
-
 pp_addpm (<<'EOPM');
 =head2 plgver
 
@@ -4820,6 +4758,8 @@ pp_addpm (<<'EOPM');
   $version = plgver ()
 
 =for ref
+
+Get the current library version number
 
 See the PLplot manual for reference.
 
@@ -4838,7 +4778,6 @@ OUTPUT:
 EOC
 
 pp_add_exported ('plgver');
-
 
 #----------------------------------------------------------------------------
 
@@ -4920,7 +4859,6 @@ pp_def ('plgriddata',
 
 if ($plversion->{'c_pllegend'}) {
 
-# Draw an arc
 pp_addpm (<<'EOPM');
 =head2 plarc
 
@@ -5023,15 +4961,19 @@ pp_addpm (<<'EOPM');
   }
   plslabelfunc(\&geolocation_labeler);
 
+The PDL version of plslabelfunc only has one argument--the perl subroutine
+to do the label translation:
+
+  my $labeltext = perl_labelfunc($axis, $value, $length);
+
+No 'data' argument is used, it is assumed that global data or a closure containing
+necessary data can be used in 'perl_labelfunc'.
+
 See the PLplot manual for more details.
 
 =cut
 EOPM
 
-# The PDL version of plslabelfunc only has one argument--the perl subroutine
-# to do the label translation:  my $labeltext = perl_labelfunc($axis, $value, $length);
-# No 'data' argument is used, it is assumed that global data or a closure containing
-# necessary data can be used in 'perl_labelfunc'.
 pp_addxs (<<"EOC");
 int
 plslabelfunc (labelfunc)
@@ -5239,7 +5181,6 @@ Set color palette 0 from the input .pal file.  See the PLplot manual for more de
 =cut
 EOPM
 
-# The PDL version of plspal0
 pp_addxs (<<"EOC");
 int
 plspal0 (filename)
@@ -5251,7 +5192,6 @@ pp_add_exported ('plspal0');
 
 #----------------------------------------------------------------------------
 
-# The PDL version of plspal1
 pp_addpm (<<'EOPM');
 =head2 plspal1
 
@@ -5277,8 +5217,6 @@ EOC
 pp_add_exported ('plspal1');
 
 } # if $plversion->{'c_pllegend'}
-
-#-----------------------------------------------------------------------------------------
 
 pp_addpm (<<'EOPM');
 =head2 plbtime
@@ -5316,8 +5254,6 @@ PPCODE:
 EOC
 pp_add_exported ('plbtime');
 
-#-----------------------------------------------------------------------------------------
-
 pp_addpm (<<'EOPM');
 =head2 plconfigtime
 
@@ -5354,8 +5290,6 @@ PPCODE:
 EOC
 pp_add_exported ('plconfigtime');
 
-#-----------------------------------------------------------------------------------------
-
 pp_addpm (<<'EOPM');
 =head2 plctime
 
@@ -5387,8 +5321,6 @@ PPCODE:
 EOC
 pp_add_exported ('plctime');
 
-#-----------------------------------------------------------------------------------------
-
 pp_addpm (<<'EOPM');
 =head2 pltimefmt
 
@@ -5411,8 +5343,6 @@ PPCODE:
   c_pltimefmt((const char *)fmt);
 EOC
 pp_add_exported ('pltimefmt');
-
-#-----------------------------------------------------------------------------------------
 
 pp_addpm (<<'EOPM');
 =head2 plsesc
