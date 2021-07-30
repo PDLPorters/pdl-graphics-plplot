@@ -140,27 +140,11 @@ unless ($plver[0] > $PL_MAJOR or ($plver[0] == $PL_MAJOR and $plver[1] >= $PL_MI
   die "Insufficient plplot version '$plgver'; need at least $PL_MAJOR.$PL_MINOR\n";
 }
 
-#
-## Tests for various PLplot features, present in different versions of PLplot
-#
-my %plversion = (); # Information on which PLplot functions/features available.
-$plversion{'plsmem'}      = test_func_exists('plsmem', 'in-memory plotting', 'plsmem( 0, 0, NULL);');
-$plversion{'plsvect'}     = test_func_exists('plsvect', 'vector plotting',   'plsvect (NULL, NULL, 0, 0);');
-$plversion{'c_plgcoloa'}  = test_func_exists('c_plgcoloa', 'alpha transparency', 'c_plgcol0a(0, 0, 0, 0, NULL);');
-$plversion{'c_plseed'}    = test_func_exists('c_plseed',   'random numbers',     'c_plseed (0 );');
-$plversion{'c_plsfont'}   = test_func_exists('c_plsfont',  'set font',           'c_plsfont (0, 0, 0);');
-$plversion{'c_plimagefr'} = test_func_exists('c_plimagefr','2d matrix',
-                                             'c_plimagefr (NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL);' );
-$plversion{'c_pllegend'}  = test_func_exists('c_pllegend', 'Plot legends',
-                                             'c_pllegend(NULL,NULL,0,   0,   0.0, 0.0, 0.0, 0,   0,   0,
-                                                         0,   0,   0,   NULL,0.0, 0.0, 0.0, 0.0, NULL,NULL,
-                                                         NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);');
-$plversion{'c_plwidth'}   = test_func_exists('c_plwidth',   '5.9.10 width function', 'c_plwidth (0. );');
+my %plversion = ();
 $plversion{'C_COMPILE'}   = "$Config{cc} $Config{ccflags} $plplot_include_path";
 $plversion{'C_COMPILE_SUFFIX'} = $libs;
 $plversion{'PLPLOT_LIB'}  = $plplot_lib_path;
-
-# Write these options to a file--used by plplot.pd during the 'make' step
+# Write these options to a file--used during the test step
 open my $fh, '>', 'OPTIONS!' or die "Cannot write to OPTIONS! file";
 print  {$fh} Dumper(\%plversion);
 close   $fh;
@@ -199,15 +183,6 @@ WriteMakefile(%hash);
 
 # Add genpp rule
 sub MY::postamble { $postamble };
-
-sub test_func_exists {
-    my ( $func, $comment, $eval ) = @_;
-    eval { compileAndRun ("$plplot_include_path $libs", 0, <<"EOC") };
-#include <plplot.h>
-main () {  $eval }
-EOC
-    return !$@;
-}
 
 sub compileAndRun {
   my $flags = shift;
