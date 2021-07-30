@@ -5037,9 +5037,9 @@ int
 plslabelfunc (labelfunc)
  SV* labelfunc
 CODE:
-  check_sub_pointer (labelfunc_subroutine, "plslabelfunc: labelfunc must be either 0 or a subroutine pointer");
   if (SvTRUE(labelfunc)) labelfunc_subroutine = SvRV(labelfunc);
-  plslabelfunc (SvTRUE(labelfunc) ? labelfunc_callback : NULL, NULL);
+  check_sub_pointer (labelfunc_subroutine, "plslabelfunc: labelfunc must be either 0 or a subroutine pointer");
+  plslabelfunc (SvTRUE(labelfunc_subroutine) ? labelfunc_callback : NULL, NULL);
 EOC
 pp_add_exported ('plslabelfunc');
 

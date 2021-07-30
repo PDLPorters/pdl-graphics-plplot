@@ -1,3 +1,5 @@
+- fix logic error in plslabelfunc
+
 0.76 2021-07-29
 - add pl_cmd and pl_setCairoCtx - thanks @mikef5410
 
