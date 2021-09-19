@@ -1,4 +1,5 @@
 - doc improvement for dates in XBOX - thanks @mvgrimes
+- relax required PLplot version to 5.13.0+.
 
 0.77 2021-07-30
 - fix logic error in plslabelfunc

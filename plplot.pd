@@ -27,8 +27,9 @@ PDL::Graphics::PLplot - Object-oriented interface from perl/PDL to the PLPLOT pl
   $pl->xyplot($x, $y);
   $pl->close;
 
-Only version 5.15.0+ of PLplot is supported, due to a C-level API change
-that is invisible at PDL-level.
+Only version 5.15.0+ of PLplot is fully supported, due to a C-level API change
+that is invisible at PDL-level. However, the library does support installation
+with PLplot 5.13.0+.
 
 For more information on PLplot, see
 
