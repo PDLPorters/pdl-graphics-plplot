@@ -74,3 +74,5 @@ PLplot.xs
 temp
 
 ^xt/
+
+^.github/
