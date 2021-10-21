@@ -47,8 +47,9 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         uses: PDLPorters/devops/github-actions/install-dep-pdl-dep@master
       - name: Install Perl configure deps
+        shell: bash
         run: |
-          cpanm -n PDL::Core::Dev
+          cpanm -n PDL::Core::Dev || cat ~/.cpanm/build.log
       - name: 'ci-dist: target-all'
         uses: PDLPorters/devops/github-actions/ci-dist@master
         with:
