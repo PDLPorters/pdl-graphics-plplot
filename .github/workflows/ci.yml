@@ -49,7 +49,7 @@ jobs:
       - name: Install Perl configure deps
         shell: bash
         run: |
-          cpanm -n PDL::Core::Dev || cat ~/.cpanm/build.log
+          cpanm -n PDL::Core::Dev Devel::CheckLib || cat ~/.cpanm/build.log
       - name: 'ci-dist: target-all'
         uses: PDLPorters/devops/github-actions/ci-dist@master
         with:
