@@ -112,7 +112,23 @@ my $plplot_lib_path;
 my $plplot_include_path;
 my $libs;
 my $header;
+
+sub _probe_alien {
+  eval "use Alien::PLplot; 1" or return 0;
+  print "Using probe: Alien::PLplot\n";
+
+  $libbasename = 'plplot';
+  $header = (Alien::PLplot->inline_auto_include)->[0];
+  $plplot_include_path = Alien::PLplot->cflags;
+  $libs = Alien::PLplot->libs;
+
+  return 1;
+}
+
 sub probe {
+  return if _probe_alien;
+
+  print "Using probe: classic\n";
   my $lib = _probe_library_path();
   unless($lib) {
     die "Cannot find plplot library\n";
