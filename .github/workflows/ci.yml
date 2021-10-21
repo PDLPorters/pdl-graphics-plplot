@@ -48,7 +48,7 @@ jobs:
         uses: PDLPorters/devops/github-actions/install-dep-pdl-dep@master
       - name: Install Perl configure deps
         run: |
-          cpanm PDL::Core::Dev
+          cpanm -n PDL::Core::Dev
       - name: 'ci-dist: target-all'
         uses: PDLPorters/devops/github-actions/ci-dist@master
         with:
