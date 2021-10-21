@@ -113,6 +113,18 @@ my $plplot_include_path;
 my $libs;
 my $header;
 
+sub _probe_msg_failure {
+  my ($msg) = @_;
+  die "$msg\n" . <<'EOF';
+
+Please either:
+- Install PLplot using your package manager,
+- Set environment variables $PLPLOT_LIBDIR and $PLPLOT_INCDIR to paths for
+  the PLplot library and headers, or
+- Install Alien::PLplot from CPAN.
+EOF
+}
+
 sub _probe_alien {
   eval "use Alien::PLplot; 1" or return 0;
   print "Using probe: Alien::PLplot\n";
@@ -131,12 +143,12 @@ sub probe {
   print "Using probe: classic\n";
   my $lib = _probe_library_path();
   unless($lib) {
-    die "Cannot find plplot library\n";
+    _probe_msg_failure "Cannot find plplot library";
   }
 
   my $inc = _probe_inc_path();
   unless($inc) {
-    die "Cannot find plplot header file\n";
+    _probe_msg_failure "Cannot find plplot header file";
   }
 
   $libbasename = $lib->{libbasename};
@@ -161,7 +173,7 @@ sub probe {
     }
   }
   unless (defined($extra_libs)) {
-    die "Cannot find good set of libraries for linking PLplot\n";
+    _probe_msg_failure "Cannot find good set of libraries for linking PLplot";
   }
 
   $libs = "-L$plplot_lib_path -l$libbasename $extra_libs";
@@ -175,7 +187,7 @@ printf  ("%d", sizeof (PLFLT));
 EOC
 
 unless ($size == 8) {
-  die <<'EOF';
+  _probe_msg_failure <<'EOF';
 Sizeof(PLFLT) must be 8.
 PLplot must be compiled --with-double (IE ./configure --with-double).
 EOF
@@ -189,7 +201,7 @@ EOC
 
 my @plver = split /\./, $plgver;
 unless ($plver[0] > $PL_MAJOR or ($plver[0] == $PL_MAJOR and $plver[1] >= $PL_MINOR)) {
-  die "Insufficient plplot version '$plgver'; need at least $PL_MAJOR.$PL_MINOR\n";
+  _probe_msg_failure "Insufficient plplot version '$plgver'; need at least $PL_MAJOR.$PL_MINOR";
 }
 
 my %plversion = ();
