@@ -1,3 +1,7 @@
+0.79 «DATE»
+- add Alien::PLplot probe for build configuration
+- add functions to get list of available devices
+
 0.78 2021-09-20
 - doc improvement for dates in XBOX - thanks @mvgrimes
 - relax required PLplot version to 5.13.0+ - thanks @zmughal
