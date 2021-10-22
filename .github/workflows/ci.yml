@@ -50,14 +50,14 @@ jobs:
       - name: Install Alien::PLplot
         if: matrix.use-alien-plplot
         run: |
-          cpanm -n Alien::PLplot || cat ~/.cpanm/build.log
+          $MYPERL -S cpanm -n Alien::PLplot || cat ~/.cpanm/build.log
       - name: Install PDL dependencies
         if: matrix.os == 'ubuntu-latest'
         uses: PDLPorters/devops/github-actions/install-dep-pdl-dep@master
       - name: Install Perl configure deps
         shell: bash
         run: |
-          cpanm --dev -n PDL::Core::Dev Devel::CheckLib || ( cat ~/.cpanm/build.log && false )
+          $MYPERL -S cpanm --dev -n PDL::Core::Dev Devel::CheckLib || ( cat ~/.cpanm/build.log && false )
       - name: 'ci-dist: target-all'
         uses: PDLPorters/devops/github-actions/ci-dist@master
         with:
