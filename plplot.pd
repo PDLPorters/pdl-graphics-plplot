@@ -3088,6 +3088,56 @@ CODE:
 EOC
 pp_add_exported('plsdev');
 
+# key:   function name
+# value: description of group of devices returned
+my %plgDevsFuncs = (
+	plgFileDevs => 'file-oriented',
+	plgDevs     => 'all',
+);
+for my $func (sort keys %plgDevsFuncs) {
+  pp_addpm (<<EOPM);
+=head2 $func
+
+=for sig
+
+  \$devices = $func ()
+
+=for ref
+
+Returns a HashRef of $plgDevsFuncs{$func} device names (key)
+and their menu strings (value).
+
+=cut
+EOPM
+
+  pp_addxs (<<"EOC");
+SV*
+$func ()
+INIT:
+	const int ndev_alloc = 100; /* per docs, "20 or so is plenty" */
+	const char **menustr = (const char**) malloc(ndev_alloc * sizeof(char*));
+	const char **devname = (const char**) malloc(ndev_alloc * sizeof(char*));
+	int ndev = ndev_alloc;
+CODE:
+	$func (&menustr, &devname, &ndev);
+	HV* hv = newHV();
+	for( int i = 0; i < ndev; i++ ) {
+		SV* menustr_sv = newSVpvn(menustr[i], strlen(menustr[i]));
+		if( NULL == hv_store(hv, devname[i], strlen(devname[i]), menustr_sv, 0) ) {
+			sv_free(menustr_sv);
+			croak("Could not return devices");
+		}
+	}
+	RETVAL = newRV_noinc((SV*) hv);
+OUTPUT:
+	RETVAL
+CLEANUP:
+	free(menustr);
+	free(devname);
+EOC
+  pp_add_exported($func);
+}
+
 pp_def ('plsdidev',
         NoPthread => 1,
 	GenericTypes => [D],
