@@ -25,15 +25,19 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         perl-version: ['5.10', '5.14', '5.20']
+        use-alien-plplot: [false]
         include:
           - perl-version: '5.30'
             os: ubuntu-latest
             release-test: true
             coverage: true
           - perl-version: '5.30'
+            os: ubuntu-latest
+            use-alien-plplot: true
+          - perl-version: '5.30'
             os: windows-latest
           - perl-version: '5.30'
-            os: macos-latest
+            os: macos-11
     steps:
       - uses: actions/checkout@v2
       - name: 'ci-dist: target-setup-perl'
@@ -43,13 +47,17 @@ jobs:
           perl-version: ${{ matrix.perl-version }}
       - name: Install PLplot
         uses: PDLPorters/devops/github-actions/install-dep-plplot@master
+      - name: Install Alien::PLplot
+        if: matrix.use-alien-plplot
+        run: |
+          $MYPERL -S cpanm -n Alien::PLplot || cat ~/.cpanm/build.log
       - name: Install PDL dependencies
         if: matrix.os == 'ubuntu-latest'
         uses: PDLPorters/devops/github-actions/install-dep-pdl-dep@master
       - name: Install Perl configure deps
         shell: bash
         run: |
-          cpanm -n PDL::Core::Dev || cat ~/.cpanm/build.log
+          $MYPERL -S cpanm --dev -n PDL::Core::Dev Devel::CheckLib || ( cat ~/.cpanm/build.log && false )
       - name: 'ci-dist: target-all'
         uses: PDLPorters/devops/github-actions/ci-dist@master
         with:
