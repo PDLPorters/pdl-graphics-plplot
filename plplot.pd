@@ -5510,17 +5510,12 @@ if (!$noalpha) {
          );
 
 pp_addxs (<<"EOC");
-unsigned int plgfci ()
-    CODE:
-    {
-	unsigned int	RETVAL;
-        unsigned int    fci;
-	c_plgfci(&fci);
-        RETVAL = fci;
-
-	XSprePUSH; PUSHu((UV)RETVAL);
-    }
-    XSRETURN(1);
+unsigned int
+plgfci ()
+CODE:
+	c_plgfci(&RETVAL);
+OUTPUT:
+	RETVAL
 EOC
 pp_add_exported('', 'plgfci');
 
