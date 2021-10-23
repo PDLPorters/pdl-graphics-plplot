@@ -5,109 +5,15 @@ use Config;
 use File::Spec;
 use Data::Dumper;
 
-# Set these environment variables for search directories for LIB and INC.
-use Env qw( $PLPLOT_LIBDIR $PLPLOT_INCDIR );
-
-use Env qw(@LD_LIBRARY_PATH);
-
 use PDL::Core::Dev;
 use Devel::CheckLib;
+use Alien::PLplot;
 
 my $PL_MAJOR = 5; # minimum required
 my $PL_MINOR = 13;
 
 unlink ("OPTIONS!"); # remove file used to communicate with plplot.pd
 
-
-my @TRY_PLPLOT_LIBNAME = (
-  'plplot',
-);
-
-my @TRY_EXTRA_LIBS = (
-  '-lX11',
-  '',
-  '-lqsastime -lcsirocsa -lgdi32 -lcomdlg32',
-);
-
-my @TRY_LIBPATH = (
-  split(' ', $Config{libpth}), # not perl-in-space friendly
-  $ENV{PLPLOT_LIBDIR} || (),
-  '/usr/local/plplot/lib64',
-  '/usr/local/plplot/lib',
-  '/usr/local/lib64',
-  '/usr/local/lib',
-  '/opt/local/lib',
-  '/usr/lib64',
-  '/usr/lib',
-  '/opt/lib64',
-  '/opt/lib',
-  '/ops/tools/lib',
-  '/sw/lib',    # default FINK installation
-  # Add new library paths here!!
-);
-
-my @TRY_PLPLOT_HEADER = (
-  'plplot.h',
-);
-
-my @TRY_INCPATH = (
-  $ENV{PLPLOT_INCDIR} || (),
-  '/usr/local/plplot/include',
-  '/usr/local/plplot/include/plplot',
-  '/usr/local/include/plplot',
-  '/usr/local/include',
-  '/opt/local/include',
-  '/usr/include',
-  '/usr/include/plplot',
-  '/opt/include',
-  '/ops/tools/include/plplot',
-  '/ops/tools/include',
-  '/sw/include/plplot',    # default FINK installation
-  # Add new header paths here!!
-);
-
-# Find -L$path -l$libbasename
-sub _probe_library_path {
-  for my $libbasename (@TRY_PLPLOT_LIBNAME) {
-    my $libname_dynamic = "lib${libbasename}.$Config{so}";
-    my $libname_static  = "lib${libbasename}.a";
-    for my $libdir (@TRY_LIBPATH) {
-      next unless $libdir;
-      for my $libname ( $libname_dynamic, $libname_static ) {
-        if( -e File::Spec->catfile($libdir, $libname) ) {
-          return {
-            'libbasename' => $libbasename,
-            'path'        => $libdir,
-            'libname'     => $libname,
-          };
-        }
-      }
-    }
-  }
-}
-
-# Find -I@paths for $header
-sub _probe_inc_path {
-  for my $header (@TRY_PLPLOT_HEADER) {
-    for my $incdir (@TRY_INCPATH) {
-      next unless $incdir;
-      if( -e File::Spec->catfile($incdir, $header) ) {
-        my $inc_above_plplot = $incdir =~ /plplot$/ ? $incdir : '';
-        $inc_above_plplot =~ s|/plplot$||;
-        return {
-          'header' => $header,
-          'paths'   => [
-            $incdir,
-            ( $inc_above_plplot ? $inc_above_plplot : () ),
-          ],
-        };
-      }
-    }
-  }
-}
-
-my $libbasename;
-my $libname;
 my $plplot_lib_path;
 my $plplot_include_path;
 my $libs;
@@ -118,65 +24,16 @@ sub _probe_msg_failure {
   die "$msg\n" . <<'EOF';
 
 Please either:
-- Install PLplot using your package manager,
-- Set environment variables $PLPLOT_LIBDIR and $PLPLOT_INCDIR to paths for
-  the PLplot library and headers, or
-- Install Alien::PLplot from CPAN.
+- Install PLplot using your package manager then reinstall Alien::PLplot or
+- Reinstall Alien::PLplot from CPAN with environment variable
+  ALIEN_INSTALL_TYPE=share.
 EOF
 }
 
-sub _probe_alien {
-  eval "use Alien::PLplot; 1" or return 0;
-  print "Using probe: Alien::PLplot\n";
-
-  $libbasename = 'plplot';
+sub probe {
   $header = (Alien::PLplot->inline_auto_include)->[0];
   $plplot_include_path = Alien::PLplot->cflags;
   $libs = Alien::PLplot->libs;
-
-  return 1;
-}
-
-sub probe {
-  return if _probe_alien;
-
-  print "Using probe: classic\n";
-  my $lib = _probe_library_path();
-  unless($lib) {
-    _probe_msg_failure "Cannot find plplot library";
-  }
-
-  my $inc = _probe_inc_path();
-  unless($inc) {
-    _probe_msg_failure "Cannot find plplot header file";
-  }
-
-  $libbasename = $lib->{libbasename};
-  $plplot_lib_path = $lib->{path};
-  $libname = $lib->{libname};
-  push @LD_LIBRARY_PATH, $lib->{path};
-
-  $plplot_include_path = join " ", map "-I$_", @{ $inc->{paths} };
-  $header = $inc->{header};
-
-  my $extra_libs;
-  for my $try_libs (@TRY_EXTRA_LIBS) {
-    if( check_lib(
-      INC      => "$plplot_include_path",
-      LIBS     => "-L$plplot_lib_path -l$libbasename $try_libs",
-      header   => $header,
-      function => 'plinit();',
-      not_execute => 1,
-    )) {
-      $extra_libs = $try_libs;
-      last;
-    }
-  }
-  unless (defined($extra_libs)) {
-    _probe_msg_failure "Cannot find good set of libraries for linking PLplot";
-  }
-
-  $libs = "-L$plplot_lib_path -l$libbasename $extra_libs";
 }
 
 probe;
@@ -220,6 +77,7 @@ $hash{'PREREQ_PM'} = { PDL => 0 };
 $hash{CONFIGURE_REQUIRES} = {
   'PDL::Core::Dev' => 0,
   'Devel::CheckLib' => 0,
+  'Alien::PLplot' => 0,
 };
 # $hash{'OPTIMIZE'}  = '-g'; # If you want to debug, uncomment this.
 $hash{TEST_REQUIRES} = {
