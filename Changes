@@ -1,5 +1,5 @@
 0.79 «DATE»
-- add Alien::PLplot probe for build configuration
+- use Alien::PLplot probe for build configuration
 - add functions to get list of available devices
 
 0.78 2021-09-20
