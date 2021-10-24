@@ -70,7 +70,7 @@ open my $fh, '>', 'OPTIONS!' or die "Cannot write to OPTIONS! file";
 print  {$fh} Dumper(\%plversion);
 close   $fh;
 
-my @pack = ([qw(plplot.pd PLplot PDL::Graphics::PLplot)]);
+my @pack = ([qw(plplot.pd PLplot PDL::Graphics::PLplot), undef, 1]);
 
 my %hash = pdlpp_stdargs(@pack);
 $hash{'PREREQ_PM'} = { PDL => 0 };
@@ -84,6 +84,7 @@ $hash{TEST_REQUIRES} = {
   'Test::More' => '0.88', # done_testing
 };
 $hash{'VERSION_FROM'}   = 'plplot.pd';
+$hash{OBJECT} .= ' callback$(OBJ_EXT)';
 $hash{'LIBS'}      = [$libs];
 $hash{'INC'}      .= " $plplot_include_path";
 $hash{clean}{FILES} .= ' *svg.* *.xfig temp* OPTIONS!';

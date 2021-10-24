@@ -1,6 +1,6 @@
-0.79 «DATE»
 - use Alien::PLplot probe for build configuration
 - add functions to get list of available devices
+- opt in to PDL 2.058 multi-C
 
 0.78 2021-09-20
 - doc improvement for dates in XBOX - thanks @mvgrimes
