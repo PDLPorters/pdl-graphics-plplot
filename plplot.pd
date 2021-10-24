@@ -3954,12 +3954,15 @@ pp_add_exported (plFree2dGrid);
 
 pp_addhdr (<<'EOH');
 
-#define check_sub_pointer(subptr, errmsg) \
-  if (SvTRUE (subptr) \
-      && (! SvROK (subptr) || SvTYPE (SvRV (subptr)) != SVt_PVCV)) \
-    croak (errmsg);
+#define MAKE_SETTABLE(label) \
+  static SV* label ## _subroutine; \
+  void label ## _callback_set(SV* sv, char *errmsg) { \
+    if (SvTRUE(sv) && (! SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVCV)) \
+      croak(errmsg); \
+    label ## _subroutine = sv; \
+  }
 
-static SV* pltr_subroutine;
+MAKE_SETTABLE(pltr)
 
 static IV pltr0_iv;
 static IV pltr1_iv;
@@ -4011,7 +4014,7 @@ get_standard_pltrcb (SV* cb)
     return SvTRUE (cb) ? (void*) pltr_callback : NULL;
 }
 
-static SV* defined_subroutine;
+MAKE_SETTABLE(defined)
 
 static PLINT
 defined_callback (PLFLT x, PLFLT y)
@@ -4043,7 +4046,7 @@ defined_callback (PLFLT x, PLFLT y)
   return retval;
 }
 
-static SV* mapform_subroutine;
+MAKE_SETTABLE(mapform)
 
 static void default_magic (pdl *p, size_t pa) { p->data = 0; }
 
@@ -4110,12 +4113,9 @@ mapform_callback (PLINT n, PLFLT* x, PLFLT* y)
   FREETMPS;
   LEAVE;
 }
-EOH
-
-pp_addhdr (<<'EOH');
 
 // Subroutines for adding transforms via plstransform
-static SV* xform_subroutine;
+MAKE_SETTABLE(xform)
 
 static void
 xform_callback ( PLFLT x, PLFLT y, PLFLT *xt, PLFLT *yt, PLPointer data )
@@ -4154,7 +4154,7 @@ xform_callback ( PLFLT x, PLFLT y, PLFLT *xt, PLFLT *yt, PLPointer data )
 }
 
 // Subroutines for adding label formatting via plslabelfunc
-static SV* labelfunc_subroutine;
+MAKE_SETTABLE(labelfunc)
 
 void labelfunc_callback (PLINT axis, PLFLT value, char *label_text, PLINT length, void *data )
 {
@@ -4224,8 +4224,7 @@ pp_def ('plmap',
         GenericTypes => [D],
         Code => '
            int use_xform;
-           mapform_subroutine = $COMP(mapform);
-	   check_sub_pointer (mapform_subroutine,
+           mapform_callback_set($COMP(mapform),
 	     "plmap: mapform must be either 0 or a subroutine pointer");
 
            use_xform = SvTRUE ($COMP(mapform));
@@ -4259,8 +4258,7 @@ pp_def ('plmeridians',
         GenericTypes => [D],
         Doc => 'Plot the latitudes and longitudes on the background',
         Code => '
-           mapform_subroutine = $COMP(mapform);
-	   check_sub_pointer (mapform_subroutine,
+           mapform_callback_set($COMP(mapform),
 	     "plmeridians: mapform must be either 0 or a subroutine pointer");
            plmeridians (SvTRUE ($COMP(mapform)) ? mapform_callback : NULL,
 	     $dlong(), $dlat(), $minlong(), $maxlong(), $minlat(), $maxlat());'
@@ -4290,12 +4288,10 @@ pp_def ('plshades',
              for (j = 0; j < ny; j++)
                z[i][j] = (PLFLT) $z(x => i, y => j);
 
-           defined_subroutine = $COMP(defined);
-	   check_sub_pointer (defined_subroutine,
+           defined_callback_set($COMP(defined),
 	     "plshades: defined must be either 0 or a subroutine pointer");
 
-           pltr_subroutine = $COMP(pltr);
-	   check_sub_pointer (pltr_subroutine,
+           pltr_callback_set($COMP(pltr),
 	     "plshades: pltr must be either 0 or a subroutine pointer");
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
@@ -4335,8 +4331,7 @@ pp_def ('plcont',
              for (j = 0; j < size_y; j++)
                ff[i][j] = $f(nx => i, ny => j);
 
-           pltr_subroutine = $COMP(pltr);
-	   check_sub_pointer (pltr_subroutine,
+           pltr_callback_set($COMP(pltr),
 	     "plcont: pltr must be either 0 or a subroutine pointer");
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
@@ -4492,12 +4487,10 @@ pp_def ('plshade1',
              for (j = 0; j < size_y; j++)
                a[i][j] = $a(nx => i, ny => j);
 
-           defined_subroutine = $COMP(defined);
-	   check_sub_pointer (defined_subroutine,
+           defined_callback_set($COMP(defined),
 	     "plshade1: defined must be either 0 or a subroutine pointer");
 
-           pltr_subroutine = $COMP(pltr);
-	   check_sub_pointer (pltr_subroutine,
+           pltr_callback_set($COMP(pltr),
 	     "plshade1: pltr must be either 0 or a subroutine pointer");
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
@@ -4561,8 +4554,8 @@ pp_def ('plimagefr',
          size_x = $SIZE(nx);
          size_y = $SIZE(ny);
 
-         pltr_subroutine = $COMP(pltr);
-         check_sub_pointer (pltr_subroutine, "plimagefr: pltr must be either 0 or a subroutine pointer");
+         pltr_callback_set($COMP(pltr),
+           "plimagefr: pltr must be either 0 or a subroutine pointer");
 
          pltrcb = get_standard_pltrcb ($COMP(pltr));
          if (pltrcb != pltr_callback)
@@ -4946,8 +4939,8 @@ plstransform (xform, data)
  SV* xform
  SV* data
 CODE:
-  check_sub_pointer (xform_subroutine, "plstransform: xform must be either 0 or a subroutine pointer");
-  if (SvTRUE(xform)) xform_subroutine = SvRV(xform);
+  if (SvTRUE(xform)) xform_callback_set(SvRV(xform),
+    "plstransform: xform must be either 0 or a subroutine pointer");
   plstransform (SvTRUE(xform) ? xform_callback : NULL, data);
 EOC
 pp_add_exported ('plstransform');
@@ -5001,9 +4994,9 @@ int
 plslabelfunc (labelfunc)
  SV* labelfunc
 CODE:
-  if (SvTRUE(labelfunc)) labelfunc_subroutine = SvRV(labelfunc);
-  check_sub_pointer (labelfunc_subroutine, "plslabelfunc: labelfunc must be either 0 or a subroutine pointer");
-  plslabelfunc (SvTRUE(labelfunc_subroutine) ? labelfunc_callback : NULL, NULL);
+  if (SvTRUE(labelfunc)) labelfunc_callback_set(SvRV(labelfunc),
+    "plslabelfunc: labelfunc must be either 0 or a subroutine pointer");
+  plslabelfunc (SvTRUE(labelfunc) ? labelfunc_callback : NULL, NULL);
 EOC
 pp_add_exported ('plslabelfunc');
 
@@ -5417,8 +5410,7 @@ pp_def ('plvect',
              v[i][j] = $v(nx => i, ny => j);
            }
 
-         pltr_subroutine = $COMP(pltr);
-         check_sub_pointer (pltr_subroutine,
+         pltr_callback_set($COMP(pltr),
            "plvect: pltr must be either 0 or a subroutine pointer");
 
          pltrcb = get_standard_pltrcb ($COMP(pltr));
