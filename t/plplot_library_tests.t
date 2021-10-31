@@ -77,6 +77,7 @@ sub cmp_files {
   my ($perlfile, $reffile) = @_;
   my $perldata = do { local( @ARGV, $/ ) = $perlfile; <> } ; # slurp!
   my $refdata  = do { local( @ARGV, $/ ) = $reffile; <> } ; # slurp!
+  s/-0\./0./g for $perldata, $refdata; # zap spurious negative-zero differences
   ok $perldata eq $refdata, "Output file $perlfile matches C output"
     or diag "$perlfile: " . length($perldata) . ", $reffile: " . length($refdata);
 }

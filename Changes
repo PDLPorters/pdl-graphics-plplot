@@ -1,3 +1,5 @@
+- zap spurious negative-zero test differences
+
 0.79 2021-10-24
 - use Alien::PLplot probe for build configuration
 - add functions to get list of available devices
