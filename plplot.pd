@@ -9,7 +9,7 @@ use Carp qw(confess);
 
 our $VERSION;
 BEGIN {
-$VERSION = '0.79'
+$VERSION = '0.80'
 };
 
 =head1 NAME
