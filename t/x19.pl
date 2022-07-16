@@ -81,7 +81,7 @@ plmeridians (10.0, 10.0, 0.0, 360.0, -10.0, 80.0, \&mapform19);
 
 # Polar, Northern hemisphere, this time with a PLplot-wide transform
 
-plstransform(\&mapform19);
+plstransform(\&mapform19, undef);
 
 pllsty(1);
 plenv(-75, 75, -75, 75, 1, -1);
@@ -103,7 +103,7 @@ plssym(0.0, 1.0);
 plptex(-76.6125, 43.0, 0.0, 0.0, 0.0, "Baltimore, MD");
 
 # For perl, this is how the global transform is cleared
-plstransform(0);
+plstransform(0, undef);
 
 plend ();
 

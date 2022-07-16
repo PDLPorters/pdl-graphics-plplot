@@ -10,8 +10,6 @@ t/not_covered/x14.pl
 t/not_covered/x14c.c
 t/not_covered/x16.pl
 t/not_covered/x16c.c
-t/not_covered/x19.pl
-t/not_covered/x19c.c
 t/not_covered/x20.pl
 t/not_covered/x20c.c
 t/not_covered/x32c.c
@@ -51,6 +49,8 @@ t/x17.pl
 t/x17c.c
 t/x18.pl
 t/x18c.c
+t/x19.pl
+t/x19c.c
 t/x21.pl
 t/x21c.c
 t/x22.pl
