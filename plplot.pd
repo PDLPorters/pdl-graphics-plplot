@@ -8,7 +8,9 @@ pp_addpm({At => Top}, <<'EOD');
 use Carp qw(confess);
 
 our $VERSION;
-BEGIN { $VERSION = '0.82' };
+BEGIN {
+$VERSION = '0.83';
+};
 
 =head1 NAME
 
