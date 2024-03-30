@@ -37,10 +37,10 @@ use constant nlevel => 10;
 
 # Pairs of points making the line segments used to plot the user defined
 # arrow
-my $arrow_x = pdl [-0.5, 0.5, 0.3, 0.5, 0.3, 0.5];
-my $arrow_y = pdl [0.0, 0.0,   0.2, 0.0, -0.2, 0.0];
-my $arrow2_x = pdl [-0.5, 0.3, 0.3, 0.5, 0.3, 0.3];
-my $arrow2_y = pdl [0.0, 0.0,   0.2, 0.0, -0.2, 0.0];
+my $arrow_x =  pdl [-0.5, 0.5, 0.3, 0.5, 0.3,  0.5];
+my $arrow_y =  pdl [0.0,  0.0, 0.2, 0.0, -0.2, 0.0];
+my $arrow2_x = pdl [-0.5, 0.3, 0.3, 0.5, 0.3,  0.3];
+my $arrow2_y = pdl [0.0,  0.0, 0.2, 0.0, -0.2, 0.0];
 
 #
 # Vector plot of the circulation about the origin
