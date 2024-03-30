@@ -61,57 +61,38 @@ sub cmap1_init {
     $s = pdl [0.0,    # minimum saturation
               0.0];   # minimum saturation
   } else {
-    $h = pdl [240,    # blue -> green -> yellow -> */
-              0];     # -> red
-
-    $l = pdl [0.6, 0.6];
-    $s = pdl [0.8, 0.8];
+    ($h, $l, $s) = (pdl(240, 0), pdl(0.6, 0.6), pdl(0.8, 0.8));
   }
 
   plscmap1n (256);
   plscmap1l (0, $i, $h, $l, $s, pdl []);
 }
 
-my $LEVELS = 10;
-
 # Parse and process command line arguments
-
 my $rosen;
 plParseOpts (\@ARGV, PL_PARSE_SKIP | PL_PARSE_NOPROGRAM);
 GetOptions ("rosen" => \$rosen);
 
-my $nlevel = LEVELS;
-my $indexxmin = 0;
-my $indexxmax = XPTS;
+my ($indexxmin, $indexxmax) = (0, XPTS);
 # parameters of ellipse (in x, y index coordinates) that limits the data.
 # x0, y0 correspond to the exact floating point centre of the index range.
-my $x0 = 0.5 * ( XPTS - 1 );
-my $a  = 0.9 * $x0;
-my $y0 = 0.5 * ( YPTS - 1 );
-my $b  = 0.7 * $y0;
-my $sombrero = !$rosen;
+my ($x0, $y0) = (0.5 * ( XPTS - 1 ), 0.5 * ( YPTS - 1 ));
+my ($a, $b) = (0.9 * $x0, 0.7 * $y0);
 
 # Initialize plplot
-
 plinit ();
 
-my $x = (sequence (XPTS) - int(XPTS / 2)) / int(XPTS / 2);
-$x *=  1.5
-  if $rosen;
-my $xx = $x->dummy(1,YPTS);
-
-my $y = (sequence (YPTS) - int(YPTS / 2)) / int(YPTS / 2);
-$y += 0.5
-  if $rosen;
-my $yy = $y->dummy(0,XPTS);
+my ($x, $y) = map +(sequence($_) - int($_ / 2)) / int($_ / 2), XPTS, YPTS;
+$x *= 1.5 if $rosen;
+$y += 0.5 if $rosen;
+my ($xx, $yy) = ($x->dummy(1,YPTS), $y->dummy(0,XPTS));
 
 my $z;
 if ($rosen) {
   $z = (1 - $xx) ** 2 + 100 * ($yy - ($xx ** 2)) ** 2;
   # The log argument may be zero for just the right grid.
   $z = log ($z);
-}
-else {
+} else {
   my $r = sqrt ($xx * $xx + $yy * $yy);
   $z = exp (-$r * $r) * cos (2.0 * pi * $r);
 }
@@ -119,8 +100,7 @@ $z->inplace->setnonfinitetobad;
 $z->inplace->setbadtoval(-5); # -MAXFLOAT would mess-up up the scale
 
 my (@indexymin, @indexymax);
-my $i = sequence( XPTS );
-my $square_root = sqrt( 1. - hclip( ( ( $i - $x0 ) / $a ) ** 2, 1 ) );
+my $square_root = sqrt(1. - hclip(( (sequence(XPTS) - $x0) / $a ) ** 2, 1));
 # Add 0.5 to find nearest integer and therefore preserve symmetry
 # with regard to lower and upper bound of y range.
 my $indexymin = lclip( 0.5 + $y0 - $b * $square_root, 0 )->indx;
@@ -133,8 +113,8 @@ for my $i ( $indexxmin..$indexxmax-1 ) {
   $zlimited->index($i)->slice($j) .= $z->index($i)->slice($j);
 }
 
-my $zmin = min ($z);
-my $zmax = max ($z);
+my ($zmin, $zmax) = (min($z), max($z));
+my $nlevel = LEVELS;
 my $step = ($zmax - $zmin) / ($nlevel + 1);
 my $clevel = $zmin + $step + $step * sequence ($nlevel);
 
@@ -160,21 +140,17 @@ for (my $k = 0; $k < 2; $k++) {
             "bnstu", "x axis", "bnstu", "y axis", "bcdmnstuv", "z axis");
     plcol0 (2);
 
+    cmap1_init(($ifshade == 0) || 0);
     if ($ifshade == 0) {        # diffuse light surface plot
-      cmap1_init (1);
-      plsurf3d ($x, $y, $z, 0, pdl []);
+      plsurf3d($x, $y, $z, 0, pdl []);
     } elsif ($ifshade == 1) { # magnitude colored plot
-      cmap1_init (0);
-      plsurf3d ($x, $y, $z, MAG_COLOR, pdl []);
+      plsurf3d($x, $y, $z, MAG_COLOR, pdl []);
     }
     elsif ($ifshade == 2) {     # magnitude colored plot with faceted squares
-      cmap1_init (0);
-      plsurf3d ($x, $y, $z, MAG_COLOR | FACETED, pdl []);
+      plsurf3d($x, $y, $z, MAG_COLOR | FACETED, pdl []);
     } elsif ($ifshade == 3) {   # magnitude colored plot with contours
-      cmap1_init (0);
-      plsurf3d ($x, $y, $z, MAG_COLOR | SURF_CONT | BASE_CONT, $clevel);
-    } else {                  # magnitude colored plot with contours and index limits.
-      cmap1_init (0);
+      plsurf3d($x, $y, $z, MAG_COLOR | SURF_CONT | BASE_CONT, $clevel);
+    } else {          # magnitude colored plot with contours and index limits.
       plsurf3dl(
         $x, $y, $zlimited, MAG_COLOR | SURF_CONT | BASE_CONT, $clevel,
         $indexxmin, $indexxmax, $indexymin, $indexymax,
