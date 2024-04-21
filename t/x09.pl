@@ -91,7 +91,7 @@ sub polar {
   plcol0 (1);
   pllab ("", "", "Polar Contour Plot");
 
-#  plFree2dGrid ($cgrid2);
+  plFree2dGrid($cgrid2);
 }
 
 # Shielded potential contour plot example
@@ -211,7 +211,7 @@ sub potential {
   plcol0 ($ncollab);
   pllab ("", "", "Shielded potential of charges in a conducting sphere");
 
-#  plFree2dGrid ($cgrid2);
+  plFree2dGrid($cgrid2);
 }
 
 # main

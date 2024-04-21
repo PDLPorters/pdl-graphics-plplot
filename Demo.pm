@@ -148,6 +148,7 @@ my @demo = (
   plcol0( 1 );
   plstransform( undef, undef );
   plflush();
+  plFree2dGrid($cgrid2);
 ]],
 
 [act => q[
@@ -195,6 +196,7 @@ my @demo = (
   plcol0 (1);
   plline ($px , $py); # Plot the cylinder
   plflush();
+  plFree2dGrid($cgrid2);
 ]],
 
 [actnw => q|
