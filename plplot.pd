@@ -2312,10 +2312,11 @@ pp_addhdr(<<'EOH');
 Core* PDL = NULL; PDL_COMMENT("Structure hold core C functions")
 #endif
 
-#define PLPTR_DEFINE(t) typedef t *t ## Ptr;
+#define PLPTR_DEFINE(t) typedef t *t ## Ptr; typedef t *t ## Ptr__OUT;
 PLPTR_DEFINE(PLcGrid)
 PLPTR_DEFINE(PLcGrid2)
 #define PLPTR_RECEIVE_IN(t, v, v_in) t *v = (t *)v_in;
+#define PLPTR_RECEIVE_SV(v) ((PLPointer) (SvROK(v) ? SvIV((SV*)SvRV(v)) : (IV)NULL))
 EOH
 
 # The create_low_level_constants function is used to make the #define'd
@@ -3872,7 +3873,8 @@ EOC
 
 pp_def ('plAllocGrid',
         NoPthread => 1,
-        Pars => 'double xg(nx); double yg(ny); indx [o] grid()',
+        Pars => 'double xg(nx); double yg(ny)',
+        OtherPars => '[o] PLcGridPtr__OUT grid',
         GenericTypes => [D],
         Doc => 'Allocates a PLcGrid object for use in pltr1',
         Code => '
@@ -3890,7 +3892,7 @@ pp_def ('plAllocGrid',
             grid->xg[i] = $xg(nx => i);
           for (i = 0; i < ny; i++)
             grid->yg[i] = $yg(ny => i);
-          $grid() = (IV) grid;'
+          $COMP(grid) = (PLcGridPtr__OUT)grid;'
         );
 
 
@@ -3911,7 +3913,8 @@ pp_add_exported (plFreeGrid);
 
 pp_def ('plAlloc2dGrid',
         NoPthread => 1,
-        Pars => 'double xg(nx,ny); double yg(nx,ny); indx [o] grid()',
+        Pars => 'double xg(nx,ny); double yg(nx,ny)',
+        OtherPars => '[o] PLcGrid2Ptr__OUT grid',
         GenericTypes => [D],
         Doc => 'Allocates a PLcGrid2 object for use in pltr2',
         Code => '
@@ -3927,7 +3930,7 @@ pp_def ('plAlloc2dGrid',
             }
           grid->nx = nx;
           grid->ny = ny;
-          $grid() = (IV) grid;'
+          $COMP(grid) = grid;'
         );
 
 
@@ -4066,7 +4069,7 @@ pp_def ('plshades',
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
            if (pltrcb != pltr_callback)
-             pltrdt = (PLPointer) SvIV($COMP(pltr_data));
+             pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
            else
              pltrdt = $COMP(pltr_data);
 
@@ -4106,7 +4109,7 @@ pp_def ('plcont',
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
            if (pltrcb != pltr_callback)
-             pltrdt = (PLPointer) SvIV($COMP(pltr_data));
+             pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
            else
              pltrdt = $COMP(pltr_data);
 
@@ -4265,7 +4268,7 @@ pp_def ('plshade1',
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
            if (pltrcb != pltr_callback)
-             pltrdt = (PLPointer) SvIV($COMP(pltr_data));
+             pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
            else
              pltrdt = $COMP(pltr_data);
 
@@ -4329,7 +4332,7 @@ pp_def ('plimagefr',
 
          pltrcb = get_standard_pltrcb ($COMP(pltr));
          if (pltrcb != pltr_callback)
-           pltrdt = (PLPointer) SvIV($COMP(pltr_data));
+           pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
          else
            pltrdt = $COMP(pltr_data);
 
@@ -5185,7 +5188,7 @@ pp_def ('plvect',
 
          pltrcb = get_standard_pltrcb ($COMP(pltr));
          if (pltrcb != pltr_callback)
-           pltrdt = (PLPointer) SvIV($COMP(pltr_data));
+           pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
          else
            pltrdt = $COMP(pltr_data);
 
