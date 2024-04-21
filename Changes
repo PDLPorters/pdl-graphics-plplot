@@ -1,4 +1,5 @@
 - add perldl demo
+- fix plFreeGrid to use free that matches the allocator
 
 0.83 2022-07-17
 - immediate re-release to fix packaging problem

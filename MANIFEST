@@ -76,3 +76,4 @@ t/x31.pl
 t/x31c.c
 t/x33.pl
 t/x33c.c
+typemap

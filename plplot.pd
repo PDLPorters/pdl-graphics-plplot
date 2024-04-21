@@ -2311,6 +2311,11 @@ pp_addhdr(<<'EOH');
 #define PDL PDL_Graphics_PLplot
 Core* PDL = NULL; PDL_COMMENT("Structure hold core C functions")
 #endif
+
+#define PLPTR_DEFINE(t) typedef t *t ## Ptr;
+PLPTR_DEFINE(PLcGrid)
+PLPTR_DEFINE(PLcGrid2)
+#define PLPTR_RECEIVE_IN(t, v, v_in) t *v = (t *)v_in;
 EOH
 
 # The create_low_level_constants function is used to make the #define'd
@@ -3847,25 +3852,22 @@ pp_def ('plrandd',
 # pltr1: Linear interpolation from singly dimensioned coord arrays
 # Linear interpolation from doubly dimensioned coord arrays
 
-for my $func ('pltr0', 'pltr1', 'pltr2') {
-
+for my $t ([qw(pltr0 SV*)], [qw(pltr1 PLcGridPtr)], [qw(pltr2 PLcGrid2Ptr)]) {
+  my ($func, $type) = @$t;
   pp_addxs (<<"EOC");
 void
-$func (x, y, grid)
+$func(x, y, grid)
   double x
   double y
-  long grid
+  $type grid
 PPCODE:
   PLFLT tx, ty;
-
-  $func (x, y, &tx, &ty, (PLPointer) grid);
-
+  $func(x, y, &tx, &ty, (PLPointer) grid);
   EXTEND (SP, 2);
-  PUSHs (sv_2mortal (newSVnv ((double) tx)));
-  PUSHs (sv_2mortal (newSVnv ((double) ty)));
+  PUSHs(sv_2mortal(newSVnv((double) tx)));
+  PUSHs(sv_2mortal(newSVnv((double) ty)));
 EOC
-
-  pp_add_exported ($func);
+  pp_add_exported($func);
 }
 
 pp_def ('plAllocGrid',
@@ -3897,12 +3899,12 @@ pp_def ('plAllocGrid',
 pp_addxs (<<"EOC");
 void
 plFreeGrid (pg)
-  long pg
+  PLcGridPtr pg
 PPCODE:
-  PLcGrid* grid = (PLcGrid*) pg;
-  free (grid->xg);
-  free (grid->yg);
-  free (grid);
+  PLPTR_RECEIVE_IN(PLcGrid, grid, pg)
+  Safefree(grid->xg);
+  Safefree(grid->yg);
+  Safefree(grid);
 EOC
 
 pp_add_exported (plFreeGrid);
@@ -3934,9 +3936,9 @@ pp_def ('plAlloc2dGrid',
 pp_addxs (<<"EOC");
 void
 plFree2dGrid(pg)
-  long pg
+  PLcGrid2Ptr pg
 PPCODE:
-  PLcGrid2* grid = (PLcGrid2*) pg;
+  PLPTR_RECEIVE_IN(PLcGrid2, grid, pg)
   plFree2dGrid(grid->xg, grid->nx, grid->ny);
   plFree2dGrid(grid->yg, grid->nx, grid->ny);
   free(grid);
