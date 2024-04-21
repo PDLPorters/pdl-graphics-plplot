@@ -1,3 +1,4 @@
+0.84 2024-04-22
 - add perldl demo
 - fix plFreeGrid to use free that matches the allocator
 - pl{Alloc,Free}{,2d}Grid error if not match allocating and freeing routine
