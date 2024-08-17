@@ -4047,6 +4047,10 @@ pp_def ('plshades',
          GenericTypes => [D],
          Doc => 'Shade regions on the basis of value',
          Code => '
+           defined_callback_set($COMP(defined),
+	     "plshades: defined must be either 0 or a subroutine pointer");
+           pltr_callback_set($COMP(pltr),
+	     "plshades: pltr must be either 0 or a subroutine pointer");
            int nx    = $SIZE(x);
            int ny    = $SIZE(y);
            int nlvl  = $SIZE(l);
@@ -4060,12 +4064,6 @@ pp_def ('plshades',
            for (i = 0; i < nx; i++)
              for (j = 0; j < ny; j++)
                z[i][j] = (PLFLT) $z(x => i, y => j);
-
-           defined_callback_set($COMP(defined),
-	     "plshades: defined must be either 0 or a subroutine pointer");
-
-           pltr_callback_set($COMP(pltr),
-	     "plshades: pltr must be either 0 or a subroutine pointer");
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
            if (pltrcb != pltr_callback)
@@ -4090,6 +4088,8 @@ pp_def ('plcont',
          OtherPars => 'SV* pltr; SV* pltr_data;', # 6,7
          Doc => 'Plot contours',
          Code => '
+           pltr_callback_set($COMP(pltr),
+	     "plcont: pltr must be either 0 or a subroutine pointer");
            int i, j, size_x, size_y;
            PLFLT** ff;
 	   void (*pltrcb) ();
@@ -4103,9 +4103,6 @@ pp_def ('plcont',
            for (i = 0; i < size_x; i++)
              for (j = 0; j < size_y; j++)
                ff[i][j] = $f(nx => i, ny => j);
-
-           pltr_callback_set($COMP(pltr),
-	     "plcont: pltr must be either 0 or a subroutine pointer");
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
            if (pltrcb != pltr_callback)
@@ -4245,6 +4242,10 @@ pp_def ('plshade1',
          PMCode => _make_reorder('plshade1'),
          Doc => 'Shade individual region on the basis of value',
          Code => '
+           defined_callback_set($COMP(defined),
+	     "plshade1: defined must be either 0 or a subroutine pointer");
+           pltr_callback_set($COMP(pltr),
+	     "plshade1: pltr must be either 0 or a subroutine pointer");
            int i, j, size_x, size_y;
            PLFLT **a;
 	   void (*pltrcb) ();
@@ -4259,12 +4260,6 @@ pp_def ('plshade1',
            for (i = 0; i < size_x; i++)
              for (j = 0; j < size_y; j++)
                a[i][j] = $a(nx => i, ny => j);
-
-           defined_callback_set($COMP(defined),
-	     "plshade1: defined must be either 0 or a subroutine pointer");
-
-           pltr_callback_set($COMP(pltr),
-	     "plshade1: pltr must be either 0 or a subroutine pointer");
 
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
            if (pltrcb != pltr_callback)
@@ -4319,6 +4314,8 @@ pp_def ('plimagefr',
         OtherPars => 'SV* pltr; SV* pltr_data;', # 9,10
         Doc => 'Plot image with transformation',
         Code => '
+         pltr_callback_set($COMP(pltr),
+           "plimagefr: pltr must be either 0 or a subroutine pointer");
          int i, j, size_x, size_y;
          PLFLT** idata;
          void (*pltrcb) ();
@@ -4326,9 +4323,6 @@ pp_def ('plimagefr',
 
          size_x = $SIZE(nx);
          size_y = $SIZE(ny);
-
-         pltr_callback_set($COMP(pltr),
-           "plimagefr: pltr must be either 0 or a subroutine pointer");
 
          pltrcb = get_standard_pltrcb ($COMP(pltr));
          if (pltrcb != pltr_callback)
@@ -5165,6 +5159,8 @@ pp_def ('plvect',
         OtherPars => 'SV* pltr; SV* pltr_data;',
         Doc => 'Vector field plots',
         Code => '
+         pltr_callback_set($COMP(pltr),
+           "plvect: pltr must be either 0 or a subroutine pointer");
          int i, j, size_x, size_y;
          PLFLT** u;
          PLFLT** v;
@@ -5182,9 +5178,6 @@ pp_def ('plvect',
              u[i][j] = $u(nx => i, ny => j);
              v[i][j] = $v(nx => i, ny => j);
            }
-
-         pltr_callback_set($COMP(pltr),
-           "plvect: pltr must be either 0 or a subroutine pointer");
 
          pltrcb = get_standard_pltrcb ($COMP(pltr));
          if (pltrcb != pltr_callback)
