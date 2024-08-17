@@ -3790,19 +3790,13 @@ pp_def ('plsurf3d',
          GenericTypes => [D],
          Doc => 'Plot shaded 3-d surface plot',
          Code => '
-           int i, j, size_x, size_y;
            PLFLT** zz;
-
-           size_x =  $SIZE(nx);
-           size_y =  $SIZE(ny);
-           plAlloc2dGrid (&zz, size_x, size_y);
+           plAlloc2dGrid(&zz, $SIZE(nx), $SIZE(ny));
            if (!zz) $CROAK("Failed to allocate memory for grid");
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               zz[i][j] = $z(nx => i, ny => j);
-           c_plsurf3d ($P(x), $P(y), (const PLFLT **)zz, size_x, size_y, $opt(),
+           loop (nx,ny) %{ zz[nx][ny] = $z(); %}
+           c_plsurf3d ($P(x), $P(y), (const PLFLT **)zz, $SIZE(nx), $SIZE(ny), $opt(),
                        $P(clevel), $SIZE(nlevel));
-           plFree2dGrid (zz, size_x, size_y);'
+           plFree2dGrid(zz, $SIZE(nx), $SIZE(ny));'
         );
 
 pp_def('plsurf3dl',
@@ -3813,19 +3807,15 @@ pp_def('plsurf3dl',
         Code => '
           int i, j, size_x, size_y;
           PLFLT** zz;
-          size_x =  $SIZE(nx);
-          size_y =  $SIZE(ny);
-          plAlloc2dGrid (&zz, size_x, size_y);
+          plAlloc2dGrid(&zz, $SIZE(nx), $SIZE(ny));
           if (!zz) $CROAK("Failed to allocate memory for grid");
-          for (i = 0; i < size_x; i++)
-            for (j = 0; j < size_y; j++)
-              zz[i][j] = $z(nx => i, ny => j);
+          loop (nx,ny) %{ zz[nx][ny] = $z(); %}
           c_plsurf3dl(
-            $P(x), $P(y), (const PLFLT **) zz, size_x, size_y, $opt(),
+            $P(x), $P(y), (const PLFLT **) zz, $SIZE(nx), $SIZE(ny), $opt(),
             $P(clevel), $SIZE(nlevel),
             $indexxmin(), $indexxmax(), $P(indexymin), $P(indexymax)
           );
-          plFree2dGrid (zz, size_x, size_y);'
+          plFree2dGrid(zz, $SIZE(nx), $SIZE(ny));'
 );
 
 pp_def ('plstyl',
@@ -3920,27 +3910,25 @@ pp_def ('plAlloc2dGrid',
         GenericTypes => [D],
         Doc => 'Allocates a PLcGrid2 object for use in pltr2',
         Code => '
-          int i, j, nx = $SIZE(nx), ny = $SIZE(ny);
           PLcGrid2 *grid = (PLcGrid2*) malloc(sizeof(PLcGrid2));
           if (!grid) $CROAK("Failed to allocate memory for grid");
-          plAlloc2dGrid(&(grid->xg), nx, ny);
+          plAlloc2dGrid(&(grid->xg), $SIZE(nx), $SIZE(ny));
           if (!grid->xg) {
             free(grid);
             $CROAK("Failed to allocate memory for grid");
           }
-          plAlloc2dGrid(&(grid->yg), nx, ny);
+          plAlloc2dGrid(&(grid->yg), $SIZE(nx), $SIZE(ny));
           if (!grid->yg) {
             free(grid);
-            plFree2dGrid(grid->xg, nx, ny);
+            plFree2dGrid(grid->xg, $SIZE(nx), $SIZE(ny));
             $CROAK("Failed to allocate memory for grid");
           }
-          for (i = 0; i < nx; i++)
-            for (j = 0; j < ny; j++) {
-              grid->xg[i][j] = $xg(nx => i, ny => j);
-              grid->yg[i][j] = $yg(nx => i, ny => j);
-            }
-          grid->nx = nx;
-          grid->ny = ny;
+          loop (nx,ny) %{
+            grid->xg[nx][ny] = $xg();
+            grid->yg[nx][ny] = $yg();
+          %}
+          grid->nx = $SIZE(nx);
+          grid->ny = $SIZE(ny);
           $COMP(grid) = grid;'
         );
 
@@ -4062,31 +4050,20 @@ pp_def ('plshades',
 	     "plshades: defined must be either 0 or a subroutine pointer");
            pltr_callback_set($COMP(pltr),
 	     "plshades: pltr must be either 0 or a subroutine pointer");
-           int nx    = $SIZE(x);
-           int ny    = $SIZE(y);
-           int nlvl  = $SIZE(l);
-           int i, j;
            PLFLT **z;
-
-           plAlloc2dGrid (&z, nx, ny);
+           plAlloc2dGrid (&z, $SIZE(x), $SIZE(y));
            if (!z) $CROAK("Failed to allocate memory for grid");
-
-           for (i = 0; i < nx; i++)
-             for (j = 0; j < ny; j++)
-               z[i][j] = (PLFLT) $z(x => i, y => j);
-
+           loop (x,y) %{ z[x][y] = (PLFLT) $z(); %}
            void (*pltrcb)();
            pltrcb = get_standard_pltrcb($COMP(pltr));
            PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
               PLPTR_RECEIVE_SV($COMP(pltr_data));
-
-           c_plshades ((const PLFLT **)z, nx, ny,
+           c_plshades ((const PLFLT **)z, $SIZE(x), $SIZE(y),
              SvTRUE ($COMP(defined)) ? defined_callback : NULL,
              $xmin(), $xmax(), $ymin(), $ymax(),
-             $P(clevel), nlvl, $fill_width(), $cont_color(), $cont_width(),
+             $P(clevel), $SIZE(l), $fill_width(), $cont_color(), $cont_width(),
              plfill, $rectangular(), pltrcb, pltrdt);
-
-           plFree2dGrid(z, nx, ny);',
+           plFree2dGrid(z, $SIZE(x), $SIZE(y));',
        );
 
 pp_def ('plcont',
@@ -4099,29 +4076,18 @@ pp_def ('plcont',
          Code => '
            pltr_callback_set($COMP(pltr),
 	     "plcont: pltr must be either 0 or a subroutine pointer");
-           int i, j, size_x, size_y;
            PLFLT** ff;
-
-           size_x = $SIZE(nx);
-           size_y = $SIZE(ny);
-
-           plAlloc2dGrid (&ff, size_x, size_y);
+           plAlloc2dGrid (&ff, $SIZE(nx), $SIZE(ny));
            if (!ff) $CROAK("Failed to allocate memory for grid");
-
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               ff[i][j] = $f(nx => i, ny => j);
-
+           loop (nx,ny) %{ ff[nx][ny] = $f(); %}
 	   void (*pltrcb) ();
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
            PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
               PLPTR_RECEIVE_SV($COMP(pltr_data));
-
-           c_plcont ((const PLFLT **)ff, size_x, size_y, $kx(), $lx(), $ky(), $ly(),
+           c_plcont ((const PLFLT **)ff, $SIZE(nx), $SIZE(ny), $kx(), $lx(), $ky(), $ly(),
                      $P(clevel), $SIZE(nlevel),
                      pltrcb, pltrdt);
-
-           plFree2dGrid (ff, size_x, size_y);'
+           plFree2dGrid (ff, $SIZE(nx), $SIZE(ny));'
         );
 
 pp_def ('plmesh',
@@ -4130,22 +4096,12 @@ pp_def ('plmesh',
          GenericTypes => [D],
          Doc => 'Surface mesh',
          Code => '
-           int i, j, size_x, size_y;
            PLFLT** zz;
-
-           size_x = $SIZE(nx);
-           size_y = $SIZE(ny);
-
-           plAlloc2dGrid (&zz, size_x, size_y);
+           plAlloc2dGrid (&zz, $SIZE(nx), $SIZE(ny));
            if (!zz) $CROAK("Failed to allocate memory for grid");
-
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               zz[i][j] = $z(nx => i, ny => j);
-
-           c_plmesh ($P(x), $P(y), (const PLFLT **)zz, size_x, size_y, $opt());
-
-           plFree2dGrid (zz, size_x, size_y);'
+           loop (nx,ny) %{ zz[nx][ny] = $z(); %}
+           c_plmesh ($P(x), $P(y), (const PLFLT **)zz, $SIZE(nx), $SIZE(ny), $opt());
+           plFree2dGrid (zz, $SIZE(nx), $SIZE(ny));'
         );
 
 pp_def ('plmeshc',
@@ -4154,23 +4110,13 @@ pp_def ('plmeshc',
          GenericTypes => [D],
          Doc => 'Magnitude colored plot surface mesh with contour',
          Code => '
-           int i, j, size_x, size_y;
            PLFLT** zz;
-
-           size_x = $SIZE(nx);
-           size_y = $SIZE(ny);
-
-           plAlloc2dGrid (&zz, size_x, size_y);
+           plAlloc2dGrid(&zz, $SIZE(nx), $SIZE(ny));
            if (!zz) $CROAK("Failed to allocate memory for grid");
-
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               zz[i][j] = $z(nx => i, ny => j);
-
-           c_plmeshc ($P(x), $P(y), (const PLFLT **)zz, size_x, size_y, $opt(),
+           loop (nx,ny) %{ zz[nx][ny] = $z(); %}
+           c_plmeshc ($P(x), $P(y), (const PLFLT **)zz, $SIZE(nx), $SIZE(ny), $opt(),
                       $P(clevel), $SIZE(nlevel));
-
-           plFree2dGrid (zz, size_x, size_y);'
+           plFree2dGrid(zz, $SIZE(nx), $SIZE(ny));'
         );
 
 pp_def ('plot3d',
@@ -4179,22 +4125,12 @@ pp_def ('plot3d',
          GenericTypes => [D],
          Doc => '3-d surface plot',
          Code => '
-           int i, j, size_x, size_y;
            PLFLT** zz;
-
-           size_x = $SIZE(nx);
-           size_y = $SIZE(ny);
-
-           plAlloc2dGrid (&zz, size_x, size_y);
+           plAlloc2dGrid(&zz, $SIZE(nx), $SIZE(ny));
            if (!zz) $CROAK("Failed to allocate memory for grid");
-
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               zz[i][j] = $z(nx => i, ny => j);
-
-           c_plot3d ($P(x), $P(y), (const PLFLT **)zz, size_x, size_y, $opt(), $side());
-
-           plFree2dGrid (zz, size_x, size_y);'
+           loop (nx,ny) %{ zz[nx][ny] = $z(); %}
+           c_plot3d ($P(x), $P(y), (const PLFLT **)zz, $SIZE(nx), $SIZE(ny), $opt(), $side());
+           plFree2dGrid(zz, $SIZE(nx), $SIZE(ny));'
         );
 
 pp_def ('plot3dc',
@@ -4203,23 +4139,13 @@ pp_def ('plot3dc',
          GenericTypes => [D],
          Doc => 'Plots a 3-d representation of the function z[x][y] with contour',
          Code => '
-           int i, j, size_x, size_y;
            PLFLT** zz;
-
-           size_x = $SIZE(nx);
-           size_y = $SIZE(ny);
-
-           plAlloc2dGrid (&zz, size_x, size_y);
+           plAlloc2dGrid(&zz, $SIZE(nx), $SIZE(ny));
            if (!zz) $CROAK("Failed to allocate memory for grid");
-
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               zz[i][j] = $z(nx => i, ny => j);
-
-           c_plot3dc ($P(x), $P(y), (const PLFLT **)zz, size_x, size_y, $opt(),
+           loop (nx,ny) %{ zz[nx][ny] = $z(); %}
+           c_plot3dc ($P(x), $P(y), (const PLFLT **)zz, $SIZE(nx), $SIZE(ny), $opt(),
                       $P(clevel), $SIZE(nlevel));
-
-           plFree2dGrid (zz, size_x, size_y);'
+           plFree2dGrid(zz, $SIZE(nx), $SIZE(ny));'
         );
 
 pp_def ('plscmap1l',
@@ -4253,29 +4179,21 @@ pp_def ('plshade1',
 	     "plshade1: defined must be either 0 or a subroutine pointer");
            pltr_callback_set($COMP(pltr),
 	     "plshade1: pltr must be either 0 or a subroutine pointer");
-           int i, j, size_x, size_y;
            PLFLT **a;
-           size_x = $SIZE(nx);
-           size_y = $SIZE(ny);
-
-           plAlloc2dGrid (&a, size_x, size_y);
-           if (!a) $CROAK("Failed to allocate memory");
-
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               a[i][j] = $a(nx => i, ny => j);
-
+           plAlloc2dGrid(&a, $SIZE(nx), $SIZE(ny));
+           if (!a) $CROAK("Failed to allocate memory for grid");
+           loop (nx,ny) %{ a[nx][ny] = $a(); %}
 	   void (*pltrcb) ();
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
            PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
               PLPTR_RECEIVE_SV($COMP(pltr_data));
-           c_plshade ((PLFLT_MATRIX) a, size_x, size_y,
+           c_plshade ((PLFLT_MATRIX) a, $SIZE(nx), $SIZE(ny),
              SvTRUE ($COMP(defined)) ? defined_callback : NULL,
              $left(), $right(), $bottom(), $top(),
              $shade_min(), $shade_max(), $sh_cmap(), $sh_color(), $sh_width(),
              $min_color(), $min_width(), $max_color(), $max_width(),
              plfill, $rectangular(), pltrcb, pltrdt);
-           plFree2dGrid(a, size_x, size_y);'
+           plFree2dGrid(a, $SIZE(nx), $SIZE(ny));'
         );
 
 pp_def ('plimage',
@@ -4285,32 +4203,20 @@ pp_def ('plimage',
          Pars => 'idata(nx,ny); xmin(); xmax(); ymin(); ymax();'
 	         . 'zmin(); zmax(); Dxmin(); Dxmax(); Dymin(); Dymax();',
          Code => '
-           int i, j, size_x, size_y;
            PLFLT** idata;
-
-           size_x = $SIZE(nx);
-           size_y = $SIZE(ny);
-
-           plAlloc2dGrid (&idata, size_x, size_y);
+           plAlloc2dGrid(&idata, $SIZE(nx), $SIZE(ny));
            if (!idata) $CROAK("Failed to allocate memory for grid");
-
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               idata[i][j] = $idata(nx => i, ny => j);
-
-           plimage ((const PLFLT **)idata, size_x, size_y,
+           loop (nx,ny) %{ idata[nx][ny] = $idata(); %}
+           plimage ((const PLFLT **)idata, $SIZE(nx), $SIZE(ny),
 	     $xmin(), $xmax(), $ymin(), $ymax(), $zmin(), $zmax(),
              $Dxmin(), $Dxmax(), $Dymin(), $Dymax());
-
-           plFree2dGrid (idata, size_x, size_y);'
+           plFree2dGrid(idata, $SIZE(nx), $SIZE(ny));'
 	);
 
 
 pp_def ('plimagefr',
         NoPthread => 1,
         GenericTypes => [D],
-        #  plimagefr (idata, nx, ny, xmin, xmax, ymin, ymax, zmin, zmax, valuemin, valuemax, pltr, pltr_data);
-        #  plimagefr ($img,          0,    $width, 0,  $height, 0,    0, $img_min, $img_max, \&pltr2, $grid);
         Pars => 'idata(nx,ny); xmin(); xmax(); ymin(); ymax();'
         . 'zmin(); zmax(); valuemin(); valuemax();', # 0-8
         OtherPars => 'SV* pltr; SV* pltr_data;', # 9,10
@@ -4318,31 +4224,20 @@ pp_def ('plimagefr',
         Code => '
          pltr_callback_set($COMP(pltr),
            "plimagefr: pltr must be either 0 or a subroutine pointer");
-         int i, j, size_x, size_y;
-         PLFLT** idata;
-
-         size_x = $SIZE(nx);
-         size_y = $SIZE(ny);
-
          void (*pltrcb)();
          pltrcb = get_standard_pltrcb($COMP(pltr));
          PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
             PLPTR_RECEIVE_SV($COMP(pltr_data));
-
-         plAlloc2dGrid (&idata, size_x, size_y);
+         PLFLT** idata;
+         plAlloc2dGrid(&idata, $SIZE(nx), $SIZE(ny));
          if (!idata) $CROAK("Failed to allocate memory for grid");
-
-         for (i = 0; i < size_x; i++)
-           for (j = 0; j < size_y; j++)
-             idata[i][j] = $idata(nx => i, ny => j);
-
-         c_plimagefr ((const PLFLT **)idata, size_x, size_y,
+         loop (nx,ny) %{ idata[nx][ny] = $idata(); %}
+         c_plimagefr ((const PLFLT **)idata, $SIZE(nx), $SIZE(ny),
            $xmin(), $xmax(), $ymin(), $ymax(), $zmin(), $zmax(),
            $valuemin(), $valuemax(),
            (SvTRUE ($COMP(pltr)) ? pltrcb : NULL),
            (SvTRUE ($COMP(pltr)) ? pltrdt : NULL));
-
-         plFree2dGrid (idata, size_x, size_y);'
+         plFree2dGrid(idata, $SIZE(nx), $SIZE(ny));'
       );
 
 pp_addpm (<<'EOPM');
@@ -4619,24 +4514,15 @@ pp_def ('plgriddata',
 	         . 'int type(); data(); [o] zg(nptsx,nptsy)',
          Doc => 'FIXME: documentation here!',
          Code => '
-           int i, j, size_x, size_y;
            PLFLT** zg;
-
-           size_x = $SIZE(nptsx);
-           size_y = $SIZE(nptsy);
-
-           plAlloc2dGrid (&zg, size_x, size_y);
+           plAlloc2dGrid(&zg, $SIZE(nptsx), $SIZE(nptsy));
            if (!zg) $CROAK("Failed to allocate memory for grid");
-
+           loop (nptsx,nptsy) %{ zg[nptsx][nptsy] = $zg(); %}
            c_plgriddata ($P(x), $P(y), $P(z), $SIZE(npts),
-	                 $P(xg), size_x, $P(yg), size_y,
+	                 $P(xg), $SIZE(nptsx), $P(yg), $SIZE(nptsy),
 	                 zg, $type(), $data());
-
-           for (i = 0; i < size_x; i++)
-             for (j = 0; j < size_y; j++)
-               $zg(nptsx => i, nptsy => j) = zg[i][j];
-
-           plFree2dGrid (zg, size_x, size_y);
+           loop (nptsx,nptsy) %{ $zg() = zg[nptsx][nptsy]; %}
+           plFree2dGrid(zg, $SIZE(nptsx), $SIZE(nptsy));
          '
         );
 
@@ -5162,36 +5048,23 @@ pp_def ('plvect',
         Code => '
          pltr_callback_set($COMP(pltr),
            "plvect: pltr must be either 0 or a subroutine pointer");
-         int i, j, size_x, size_y;
          PLFLT** u;
-         PLFLT** v;
-
-         size_x = $SIZE(nx);
-         size_y = $SIZE(ny);
-
-         plAlloc2dGrid (&u, size_x, size_y);
+         plAlloc2dGrid (&u, $SIZE(nx), $SIZE(ny));
          if (!u) $CROAK("Failed to allocate memory for grid");
-         plAlloc2dGrid (&v, size_x, size_y);
+         PLFLT** v;
+         plAlloc2dGrid (&v, $SIZE(nx), $SIZE(ny));
          if (!v) {
-           plFree2dGrid (u, size_x, size_y);
+           plFree2dGrid (u, $SIZE(nx), $SIZE(ny));
            $CROAK("Failed to allocate memory for grid");
          }
-
-         for (i = 0; i < size_x; i++)
-           for (j = 0; j < size_y; j++) {
-             u[i][j] = $u(nx => i, ny => j);
-             v[i][j] = $v(nx => i, ny => j);
-           }
-
+         loop (nx,ny) %{ u[nx][ny] = $u(); v[nx][ny] = $v(); %}
          void (*pltrcb)();
          pltrcb = get_standard_pltrcb($COMP(pltr));
          PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
             PLPTR_RECEIVE_SV($COMP(pltr_data));
-
-         plvect ((const PLFLT **)u, (const PLFLT **)v, size_x, size_y, $scale(), pltrcb, pltrdt);
-
-         plFree2dGrid (u, size_x, size_y);
-         plFree2dGrid (v, size_x, size_y);'
+         plvect ((const PLFLT **)u, (const PLFLT **)v, $SIZE(nx), $SIZE(ny), $scale(), pltrcb, pltrdt);
+         plFree2dGrid(u, $SIZE(nx), $SIZE(ny));
+         plFree2dGrid(v, $SIZE(nx), $SIZE(ny));'
        );
 
 pp_def ('plsvect',
