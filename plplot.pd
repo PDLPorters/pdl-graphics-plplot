@@ -4056,8 +4056,6 @@ pp_def ('plshades',
            int nlvl  = $SIZE(l);
            int i, j;
            PLFLT **z;
- 	   void (*pltrcb) ();
-           PLPointer pltrdt;
 
            plAlloc2dGrid (&z, nx, ny);
 
@@ -4065,11 +4063,10 @@ pp_def ('plshades',
              for (j = 0; j < ny; j++)
                z[i][j] = (PLFLT) $z(x => i, y => j);
 
-	   pltrcb = get_standard_pltrcb ($COMP(pltr));
-           if (pltrcb != pltr_callback)
-             pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
-           else
-             pltrdt = $COMP(pltr_data);
+           void (*pltrcb)();
+           pltrcb = get_standard_pltrcb($COMP(pltr));
+           PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
+              PLPTR_RECEIVE_SV($COMP(pltr_data));
 
            c_plshades ((const PLFLT **)z, nx, ny,
              SvTRUE ($COMP(defined)) ? defined_callback : NULL,
@@ -4092,8 +4089,6 @@ pp_def ('plcont',
 	     "plcont: pltr must be either 0 or a subroutine pointer");
            int i, j, size_x, size_y;
            PLFLT** ff;
-	   void (*pltrcb) ();
-           PLPointer pltrdt;
 
            size_x = $SIZE(nx);
            size_y = $SIZE(ny);
@@ -4104,11 +4099,10 @@ pp_def ('plcont',
              for (j = 0; j < size_y; j++)
                ff[i][j] = $f(nx => i, ny => j);
 
+	   void (*pltrcb) ();
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
-           if (pltrcb != pltr_callback)
-             pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
-           else
-             pltrdt = $COMP(pltr_data);
+           PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
+              PLPTR_RECEIVE_SV($COMP(pltr_data));
 
            c_plcont ((const PLFLT **)ff, size_x, size_y, $kx(), $lx(), $ky(), $ly(),
                      $P(clevel), $SIZE(nlevel),
@@ -4244,9 +4238,6 @@ pp_def ('plshade1',
 	     "plshade1: pltr must be either 0 or a subroutine pointer");
            int i, j, size_x, size_y;
            PLFLT **a;
-	   void (*pltrcb) ();
-           PLPointer pltrdt;
-
            size_x = $SIZE(nx);
            size_y = $SIZE(ny);
 
@@ -4257,19 +4248,16 @@ pp_def ('plshade1',
              for (j = 0; j < size_y; j++)
                a[i][j] = $a(nx => i, ny => j);
 
+	   void (*pltrcb) ();
 	   pltrcb = get_standard_pltrcb ($COMP(pltr));
-           if (pltrcb != pltr_callback)
-             pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
-           else
-             pltrdt = $COMP(pltr_data);
-
+           PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
+              PLPTR_RECEIVE_SV($COMP(pltr_data));
            c_plshade ((PLFLT_MATRIX) a, size_x, size_y,
              SvTRUE ($COMP(defined)) ? defined_callback : NULL,
              $left(), $right(), $bottom(), $top(),
              $shade_min(), $shade_max(), $sh_cmap(), $sh_color(), $sh_width(),
              $min_color(), $min_width(), $max_color(), $max_width(),
              plfill, $rectangular(), pltrcb, pltrdt);
-
            plFree2dGrid(a, size_x, size_y);'
         );
 
@@ -4314,17 +4302,14 @@ pp_def ('plimagefr',
            "plimagefr: pltr must be either 0 or a subroutine pointer");
          int i, j, size_x, size_y;
          PLFLT** idata;
-         void (*pltrcb) ();
-         PLPointer pltrdt;
 
          size_x = $SIZE(nx);
          size_y = $SIZE(ny);
 
-         pltrcb = get_standard_pltrcb ($COMP(pltr));
-         if (pltrcb != pltr_callback)
-           pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
-         else
-           pltrdt = $COMP(pltr_data);
+         void (*pltrcb)();
+         pltrcb = get_standard_pltrcb($COMP(pltr));
+         PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
+            PLPTR_RECEIVE_SV($COMP(pltr_data));
 
          plAlloc2dGrid (&idata, size_x, size_y);
 
@@ -5160,8 +5145,6 @@ pp_def ('plvect',
          int i, j, size_x, size_y;
          PLFLT** u;
          PLFLT** v;
-         void (*pltrcb) ();
-         PLPointer pltrdt;
 
          size_x = $SIZE(nx);
          size_y = $SIZE(ny);
@@ -5175,11 +5158,10 @@ pp_def ('plvect',
              v[i][j] = $v(nx => i, ny => j);
            }
 
-         pltrcb = get_standard_pltrcb ($COMP(pltr));
-         if (pltrcb != pltr_callback)
-           pltrdt = PLPTR_RECEIVE_SV($COMP(pltr_data));
-         else
-           pltrdt = $COMP(pltr_data);
+         void (*pltrcb)();
+         pltrcb = get_standard_pltrcb($COMP(pltr));
+         PLPointer pltrdt = pltrcb == pltr_callback ? $COMP(pltr_data) :
+            PLPTR_RECEIVE_SV($COMP(pltr_data));
 
          plvect ((const PLFLT **)u, (const PLFLT **)v, size_x, size_y, $scale(), pltrcb, pltrdt);
 
