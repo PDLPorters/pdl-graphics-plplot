@@ -4217,16 +4217,12 @@ pp_def ('plscmap1l',
 	         . ' int rev(nrev)',
          GenericTypes => [D],
          Doc => 'Set color map1 colors using a piece-wise linear relationship',
+         RedoDimsCode => '
+	   if ($SIZE(nrev) != 0 && $SIZE(nrev) != $SIZE(n))
+             $CROAK("rev must have either length == 0 or have the same length of the other input arguments");
+         ',
          Code => '
-	   PLINT* rev;
-
-	   if ($SIZE(nrev) == 0)
-	     rev = NULL;
-	   else if ($SIZE(nrev) == $SIZE(n))
-   	     rev = $P(rev);
-           else
-             $CROAK("plscmap1l: rev must have either length == 0 or have the same length of the other input arguments");
-
+	   PLINT* rev = ($SIZE(nrev) == 0) ? NULL : $P(rev);
 	   c_plscmap1l ($itype(), $SIZE(n), $P(isty), $P(coord1),
 	                       $P(coord2), $P(coord3), rev);'
         );
@@ -5276,16 +5272,12 @@ if (!$noalpha) {
           . ' int rev(nrev)',
           GenericTypes => [D],
           Doc => 'Set color map1 colors using a piece-wise linear relationship, include alpha channel',
+         RedoDimsCode => '
+	   if ($SIZE(nrev) != 0 && $SIZE(nrev) != $SIZE(n))
+             $CROAK("rev must have either length == 0 or have the same length of the other input arguments");
+         ',
           Code => '
-            PLINT* rev;
-
-            if ($SIZE(nrev) == 0)
-              rev = NULL;
-            else if ($SIZE(nrev) == $SIZE(n))
-              rev = $P(rev);
-            else
-              $CROAK("plscmap1la: rev must have either length == 0 or have the same length of the other input arguments");
-
+	    PLINT* rev = ($SIZE(nrev) == 0) ? NULL : $P(rev);
             c_plscmap1la ($itype(), $SIZE(n), $P(isty), $P(coord1),
                           $P(coord2), $P(coord3), $P(coord4), rev);'
          );
