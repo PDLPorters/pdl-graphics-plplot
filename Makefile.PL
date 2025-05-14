@@ -113,10 +113,14 @@ sub compileAndRun {
   my ($code) = @_;
   my $result;
 
+  my @inc = split " ", $plplot_include_path;
+  @inc = grep {/^-I.*/ } @inc;
+  my $inc = join " ", @inc;
+
   check_lib(
     ccflags  => "$plplot_include_path",
     ldflags  => "$libs",
-    INC      => "$plplot_include_path",
+    INC      => "$inc",
     LIBS     => "$libs",
     header   => [ 'stdio.h', $header ],
     function => $code,
