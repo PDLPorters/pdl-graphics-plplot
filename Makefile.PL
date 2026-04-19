@@ -76,7 +76,7 @@ my @pack = ([qw(plplot.pd PLplot PDL::Graphics::PLplot), undef, 1]);
 my %hash = pdlpp_stdargs(@pack);
 $hash{PREREQ_PM} = { PDL => 0 };
 $hash{CONFIGURE_REQUIRES} = {
-  'PDL' => '2.083', # output OtherPars
+  'PDL' => '2.088', # loop with end
   'Devel::CheckLib' => 0,
   'Alien::PLplot' => 0,
 };

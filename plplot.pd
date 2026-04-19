@@ -3509,14 +3509,12 @@ pp_def ('plline',
 	HandleBad => 1,
 	NoBadifNaN => 1,
 	Code => 'c_plline($SIZE(n),$P(x),$P(y));',
-	BadCode => 'int i;
-                     int j;
-                     for (i=1;i<$SIZE(n);i++) {
-                       j = i-1;	/* PP does not like using i-1 in a PDL ref.  Use j instead. */
-                       if ($ISGOOD(x(n=>i)) && $ISGOOD(x(n=>j)) && $ISGOOD(y(n=>i)) && $ISGOOD(y(n=>j))) {
-                         c_pljoin ($x(n=>j), $y(n=>j), $x(n=>i), $y(n=>i));
+	BadCode => '
+                     loop (n) %{
+                       if ($ISGOOD(x()) && $ISGOOD(x(n=>n-1)) && $ISGOOD(y()) && $ISGOOD(y(n=>n-1))) {
+                         c_pljoin ($x(n=>n-1), $y(n=>n-1), $x(), $y());
                        }
-                     }',
+                     %}',
 	Doc => $doc,
        );
 
@@ -3570,37 +3568,20 @@ pp_def ('plcolorpoints',
          Pars => 'x(n); y(n); z(n); int sym(); minz(); maxz()',
          GenericTypes => [D],
          HandleBad => 1,
-         Code => 'int i;
+         Code => '
                   int j;
-                  int ns = $SIZE(n);
                   PLFLT zrange, ci;
 
                   zrange  = $maxz() - $minz();
 
-                  for (i=0;i<ns;i++) {
-                    ci = (zrange == 0.0) ? 0.5 : ($z(n=>i) - $minz()) / zrange;  /* get color idx in 0-1 range */
+                  loop (n) %{
+                    PDL_IF_BAD(if ($ISBAD(z())) continue;,)
+                    ci = (zrange == 0.0) ? 0.5 : ($z() - $minz()) / zrange;  /* get color idx in 0-1 range */
                     if (ci < 0) ci = 0; /* enforce bounds */
                     if (ci > 1) ci = 1;
                     c_plcol1 (ci); /* set current color */
-                    c_plsym (1, &$x(n=>i), &$y(n=>i), $sym()); /* plot it */
-                  }',
-         BadCode =>
-	         'int i;
-                  int j;
-                  int ns = $SIZE(n);
-                  PLFLT zrange, ci;
-
-                  zrange  = $maxz()  - $minz();
-
-                  for (i=0;i<ns;i++) {
-                    if ($ISBAD(z(n=>i))) continue;
-                    ci = (zrange == 0.0) ? 0.5 : ($z(n=>i) - $minz()) / zrange;  /* get color idx in 0-1 range */
-                    if (ci < 0) ci = 0; /* enforce bounds */
-                    if (ci > 1) ci = 1;
-                    c_plcol1 (ci); /* set current color */
-                    c_plsym (1, &$x(n=>i), &$y(n=>i), $sym()); /* plot it */
-
-                  }',
+                    c_plsym (1, &$x(), &$y(), $sym()); /* plot it */
+                  %}',
          Doc => $doc,
        );
 
