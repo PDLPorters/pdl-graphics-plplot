@@ -3831,12 +3831,14 @@ pp_def ('plstyl',
 
 pp_def ('plseed',
         NoPthread => 1,
+        GenericTypes => [D],
         Pars => 'int seed()',
         Code => 'unsigned int useed = (unsigned int)$seed(); c_plseed(useed);'
       );
 
 pp_def ('plrandd',
         NoPthread => 1,
+        GenericTypes => [D],
         Pars => 'double [o]rand()',
         Code => '$rand() = c_plrandd();'
       );
@@ -5082,6 +5084,7 @@ pp_def ('plhlsrgb',
 # void c_plgcol0(PLINT icol0, PLINT *r, PLINT *g, PLINT *b);
 pp_def ('plgcol0',
         NoPthread => 1,
+        GenericTypes => [D],
         Pars => 'int icolzero(); int [o]r(); int [o]g(); int [o]b()',
         Code => 'c_plgcol0($icolzero(),$P(r),$P(g),$P(b));'
        );
@@ -5089,6 +5092,7 @@ pp_def ('plgcol0',
 # void c_plgcolbg(PLINT *r, PLINT *g, PLINT *b);
 pp_def ('plgcolbg',
         NoPthread => 1,
+        GenericTypes => [D],
         Pars => 'int [o]r(); int [o]g(); int [o]b()',
         Code => 'c_plgcolbg($P(r),$P(g),$P(b));'
        );
@@ -5096,6 +5100,7 @@ pp_def ('plgcolbg',
 # void c_plscmap0(PLINT *r, PLINT *g, PLINT *b, PLINT ncol0);
 pp_def ('plscmap0',
         NoPthread => 1,
+        GenericTypes => [D],
         Pars => 'int r(n); int g(n); int b(n)',
         Code => 'c_plscmap0($P(r),$P(g),$P(b), $SIZE(n));'
        );
@@ -5103,6 +5108,7 @@ pp_def ('plscmap0',
 # void c_plscmap1(PLINT *r, PLINT *g, PLINT *b, PLINT ncol1);
 pp_def ('plscmap1',
         NoPthread => 1,
+        GenericTypes => [D],
         Pars => 'int r(n); int g(n); int b(n)',
         Code => 'c_plscmap1($P(r),$P(g),$P(b), $SIZE(n));'
        );
@@ -5112,6 +5118,7 @@ if (!$noalpha) {
   # void c_plgcol0a(PLINT icol0, PLINT *r, PLINT *g, PLINT *b, PLFLT *a);
   pp_def ('plgcol0a',
           NoPthread => 1,
+          GenericTypes => [D],
           Pars => 'int icolzero(); int [o]r(); int [o]g(); int [o]b(); double [o]a()',
           Code => 'c_plgcol0a($icolzero(),$P(r),$P(g),$P(b),$P(a));'
          );
@@ -5119,6 +5126,7 @@ if (!$noalpha) {
   # void c_plgcolbga(PLINT *r, PLINT *g, PLINT *b, PLFLT *a);
   pp_def ('plgcolbga',
           NoPthread => 1,
+          GenericTypes => [D],
           Pars => 'int [o]r(); int [o]g(); int [o]b(); double [o]a()',
           Code => 'c_plgcolbga($P(r),$P(g),$P(b),$P(a));'
          );
@@ -5126,6 +5134,7 @@ if (!$noalpha) {
   # void c_plscmap0a(PLINT *r, PLINT *g, PLINT *b, PLFLT *a, PLINT ncol0);
   pp_def ('plscmap0a',
           NoPthread => 1,
+          GenericTypes => [D],
           Pars => 'int r(n); int g(n); int b(n); double a(n)',
           Code => 'c_plscmap0a($P(r),$P(g),$P(b),$P(a),$SIZE(n));'
          );
@@ -5133,6 +5142,7 @@ if (!$noalpha) {
   # void c_plscmap1a(PLINT *r, PLINT *g, PLINT *b, PLFLT *a, PLINT ncol1);
   pp_def ('plscmap1a',
           NoPthread => 1,
+          GenericTypes => [D],
           Pars => 'int r(n); int g(n); int b(n); double a(n)',
           Code => 'c_plscmap1a($P(r),$P(g),$P(b),$P(a),$SIZE(n));'
          );
@@ -5162,6 +5172,7 @@ c_plscmap1la ($itype(), $SIZE(n), $P(isty), $P(coord1),
   # plgfont(PLINT *p_family, PLINT *p_style, PLINT *p_weight);
   pp_def ('plgfont',
           NoPthread => 1,
+          GenericTypes => [D],
           Pars => 'int [o]p_family(); int [o]p_style(); int [o]p_weight();',
           Code => 'c_plgfont($P(p_family),$P(p_style),$P(p_weight));'
          );
@@ -5169,6 +5180,7 @@ c_plscmap1la ($itype(), $SIZE(n), $P(isty), $P(coord1),
   #  plsfont (PLINT family, PLINT style, PLINT weight);
   pp_def ('plsfont',
           NoPthread => 1,
+          GenericTypes => [D],
           Pars => 'int family(); int style(); int weight();',
           Code => 'c_plsfont($family(),$style(),$weight());'
          );
@@ -5176,6 +5188,7 @@ c_plscmap1la ($itype(), $SIZE(n), $P(isty), $P(coord1),
   #  plcalc_world (PLFLT rx, PLFLT ry, PLFLT *wx, PLFLT *wy, PLINT *window);
   pp_def ('plcalc_world',
           NoPthread => 1,
+          GenericTypes => [D],
           Pars => 'double rx(); double ry(); double [o]wx(); double [o]wy(); int [o]window()',
           Code => 'c_plcalc_world($rx(), $ry(), $P(wx), $P(wy), $P(window));'
          );
